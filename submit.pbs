@@ -1,0 +1,169 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=16:dc2,walltime=3:30:00
+#PBS -N app-ensembletracking
+#PBS -V
+
+cd $PBS_O_WORKDIR
+
+
+module load mrtrix/0.2.12
+module load freesurfer/6.0.0
+module load matlab
+
+BGRAD="grad.b"
+
+input_nii_gz=`$SCA_SERVICE_DIR/jq -r '.dwi' config.json`
+BVALS=`$SCA_SERVICE_DIR/jq -r '.bvals' config.json`
+BVECS=`$SCA_SERVICE_DIR/jq -r '.bvecs' config.json`
+NUMFIBERS=`$SCA_SERVICE_DIR/jq -r '.fibers' config.json`
+MAXNUMFIBERSATTEMPTED=`$SCA_SERVICE_DIR/jq -r '.fibers_max' config.json`
+WMMASK=`$SCA_SERVICE_DIR/jq -r '.wm_mask' config.json`
+
+echo "input_nii_gz:$input_nii_gz"
+echo "BGRAD:$BGRAD"
+
+export MATLABPATH=$MATLABPATH:$SCA_SERVICE_DIR
+time matlab -nodisplay -nosplash -r main
+
+echo "converting wm.nii.gz to wm.mif"
+if [ -f wm.mif ]; then
+    echo "wm.mif already exist... skipping"
+else
+    time mrconvert --quiet $WMMASK wm.mif
+fi
+
+
+echo "converting dwi input to mif (should take a few minutes)"
+if [ -f dwi.mif ]; then
+    echo "dwi.mif already exist... skipping"
+else
+    time mrconvert --quiet $input_nii_gz dwi.mif
+    ret=$?
+    if [ ! $ret -eq 0 ]; then
+       
+        echo $ret > finished
+        exit $ret
+       
+    fi
+fi
+
+
+
+
+###################################################################################################
+
+echo "make brainmask from dwi data (about 18 minutes)"
+if [ -f brainmask.mif ]; then
+    echo "brainmask.mif already exist... skipping"
+else
+    time average dwi.mif -axis 3 - | threshold - - | median3D - - | median3D - brainmask.mif
+    ret=$?
+    if [ ! $ret -eq 0 ]; then
+
+        echo $ret > finished
+        exit $ret
+   
+    fi
+fi
+
+###################################################################################################
+
+echo "fit tensor model (takes about 16 minutes)"
+if [ -f dt.mif ]; then
+    echo "dt.mif already exist... skipping"
+else
+   
+    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
+fi
+
+if [ -f fa.mif ]; then
+    echo "fa.mif already exist... skipping"
+else
+   
+    time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
+   
+fi
+
+
+if [ -f ev.mif ]; then
+    echo "ev.mif already exist... skipping"
+else
+    time tensor2vector dt.mig - | mrmult - fa.mif ev.mif
+    ret=$?
+    if [ ! $ret -eq 0 ]; then
+      
+        echo $ret > finished
+        exit $ret
+    
+    fi 
+fi
+###################################################################################################
+
+echo "estimate response function"
+if [ -f sf.mif ]; then
+    echo "sf.mif already exist... skipping"
+else 
+    time erode brainmask.mif -npass 3 - | mrmult fa.mif - - | threshold - -abs 0.7 sf.mif
+fi
+
+if [ -f response.txt ]; then
+    echo "response.txt already exist... skipping"
+else
+    
+    time estimate_response dwi.mif sf.mif -lmax 6 -grad $BGRAD response.txt
+    ret=$?
+    if [ ! $ret -eq 0 ]; then
+       
+        echo $ret > finished
+        exit $ret
+   
+    fi
+fi
+
+###################################################################################################
+
+
+# Perform CSD in each white matter voxel
+for i_lmax in 2 4 6 8 10 12; do
+    csdeconv dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif lmax${i_lmax}.mif
+   # echo DONE Lmax=$i_lmax 
+done 
+
+
+echo DONE performing preprocessing of data before starting tracking...
+
+
+
+###################################################################################################
+
+
+
+echo START tracking...
+
+#echo tracking Deterministic Tensorbased
+for i_track in 01; do
+streamtrack DT_STREAM dwi.mif wm_tensor-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+done
+
+for i_track in 01; do
+# loop over tracking and lmax
+for i_tracktype in SD_STREAM SD_PROB; do
+
+#echo Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
+
+    for i_lmax in 2 4 6 8 10 12; do
+	#echo Tracking CSD-based Lmax=$i_lmax
+	streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+    done
+
+#echo DONE Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
+
+done
+done
+
+echo DONE tracking. Exiting Ensemble Tracking Candidate Fascicle Generation Script
+
+echo 0 > finished
+
+
+
