@@ -142,7 +142,8 @@ echo START tracking...
 
 #echo tracking Deterministic Tensorbased
 for i_track in 01; do
-streamtrack DT_STREAM dwi.mif wm_tensor-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+#streamtrack DT_STREAM dwi.mif wm_tensor-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+streamtrack DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
 done
 
 for i_track in 01; do
@@ -153,7 +154,8 @@ for i_tracktype in SD_STREAM SD_PROB; do
 
     for i_lmax in 2 4 6 8 10 12; do
 	#echo Tracking CSD-based Lmax=$i_lmax
-	streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+	#streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+       	streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
     done
 
 #echo DONE Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
@@ -161,7 +163,11 @@ for i_tracktype in SD_STREAM SD_PROB; do
 done
 done
 
-echo DONE tracking. Exiting Ensemble Tracking Candidate Fascicle Generation Script
+echo DONE tracking. 
+
+echo creating connectome
+
+matlab -nodisplay -nosplash -r ensemble_connectome_generator
 
 echo 0 > finished
 
