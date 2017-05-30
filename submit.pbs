@@ -165,9 +165,11 @@ done
 
 echo DONE tracking. 
 
-echo creating connectome
+echo creating ensemble tractography
 
-matlab -nodisplay -nosplash -r ensemble_connectome_generator
+#matlab -nodisplay -nosplash -r ensemble_connectome_generator
+
+cat_tracks track.tck $(find ./ -name *.tck)
 
 echo 0 > finished
 
