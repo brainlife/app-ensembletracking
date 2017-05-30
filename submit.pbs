@@ -17,7 +17,7 @@ BVALS=`$SCA_SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SCA_SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SCA_SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SCA_SERVICE_DIR/jq -r '.fibers_max' config.json`
-WMMASK=`$SCA_SERVICE_DIR/jq -r '.wm_mask' config.json`
+WMMASK=wm_mask.nii.gz
 
 echo "input_nii_gz:$input_nii_gz"
 echo "BGRAD:$BGRAD"
