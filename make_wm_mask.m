@@ -13,7 +13,7 @@ invals  = [2 41 16 17 28 60 51 53 12 52 13 18 ...
 wmMaskFile = 'wm.nii.gz';
 
 % Find the FreeSurfer files
-fs_wm = fullfile(config.freesurfer,'output','mri','aseg.mgz');
+fs_wm = fullfile(config.freesurfer, 'mri','aseg.mgz');
 
 disp('working directory is');
 pwd
