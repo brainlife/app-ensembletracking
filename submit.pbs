@@ -88,7 +88,7 @@ fi
 if [ -f ev.mif ]; then
     echo "ev.mif already exist... skipping"
 else
-    time tensor2vector dt.mig - | mrmult - fa.mif ev.mif
+    time tensor2vector dt.mif - | mrmult - fa.mif ev.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
       
