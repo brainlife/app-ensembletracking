@@ -169,7 +169,7 @@ echo creating ensemble tractography
 
 #matlab -nodisplay -nosplash -r ensemble_connectome_generator
 
-cat_tracks track.tck $(find ./ -name *.tck)
+cat_tracks track.tck $(find . -name *.tck)
 
 #check for output files
 if [ -s track.tck ];
