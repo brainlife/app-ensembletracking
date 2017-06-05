@@ -38,7 +38,7 @@ for ilm = 1:length(lmaxparam)
     end
 end 
 % Write fascicle group to disk.
-fgFileName = 'ensemble.mat';
+fgFileName = 'track.mat';
 fgWrite(fg,fgFileName);
 
 end
