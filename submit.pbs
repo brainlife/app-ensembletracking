@@ -179,15 +179,15 @@ echo DONE tracking.
 
 echo creating ensemble tractography
 
-#matlab -nodisplay -nosplash -r ensemble_connectome_generator
+matlab -nodisplay -nosplash -r ensemble_connectome_generator
 
-cat_tracks track.tck csd_lmax2_wm_SD_STREAM.tck csd_lmax2_wm_SD_PROB.tck csd_lmax4_wm_SD_STREAM.tck csd_lmax4_wm_SD_PROB.tck\
-	csd_lmax6_wm_SD_STREAM.tck csd_lmax6_wm_SD_PROB.tck csd_lmax8_wm_SD_STREAM.tck csd_lmax8_wm_SD_PROB.tck\ 
-	csd_lmax10_wm_SD_STREAM.tck csd_lmax10_wm_SD_PROB.tck csd_lmax12_wm_SD_STREAM.tck csd_lmax12_wm_SD_PROB.tck\ 
-	wm_tensor.tck
+#cat_tracks track.tck csd_lmax2_wm_SD_STREAM.tck csd_lmax2_wm_SD_PROB.tck csd_lmax4_wm_SD_STREAM.tck csd_lmax4_wm_SD_PROB.tck\
+#	csd_lmax6_wm_SD_STREAM.tck csd_lmax6_wm_SD_PROB.tck csd_lmax8_wm_SD_STREAM.tck csd_lmax8_wm_SD_PROB.tck\ 
+#	csd_lmax10_wm_SD_STREAM.tck csd_lmax10_wm_SD_PROB.tck csd_lmax12_wm_SD_STREAM.tck csd_lmax12_wm_SD_PROB.tck\ 
+#	wm_tensor.tck
 
 #check for output files
-if [ -s track.tck ];
+if [ -s track.mat];
 then
 	echo 0 > finished
 else
