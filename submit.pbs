@@ -187,7 +187,7 @@ matlab -nodisplay -nosplash -r ensemble_connectome_generator
 #	wm_tensor.tck
 
 #check for output files
-if [ -s track.mat];
+if [ -s track.mat ];
 then
 	echo 0 > finished
 else
