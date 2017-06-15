@@ -6,7 +6,7 @@ case 'IUHPC'
         addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
 case 'VM'
         disp('loading paths (VM)')
-  	addpath(genpath('/usr/local/jsonlab'))
+  	addpath(genpath('/usr/local/vistasoft'))
 
 
 
