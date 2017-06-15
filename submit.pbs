@@ -158,9 +158,9 @@ else
 	done
 fi
 
-if [ -f csd_lmax2_wm_SD_STREAM.tck ] && [ -f csd_lmax2_wm_SD_PROB.tck ] && [ -f csd_lmax4_wm_SD_STREAM.tck ] && [-f csd_lmax4_wm_SD_PROB.tck ] && \
+if [ -f csd_lmax2_wm_SD_STREAM.tck ] && [ -f csd_lmax2_wm_SD_PROB.tck ] && [ -f csd_lmax4_wm_SD_STREAM.tck ] && [ -f csd_lmax4_wm_SD_PROB.tck ] && \
 	[ -f csd_lmax6_wm_SD_STREAM.tck ] && [ -f csd_lmax6_wm_SD_PROB.tck ] && [ -f csd_lmax8_wm_SD_STREAM.tck ] && [ -f csd_lmax8_wm_SD_PROB.tck ] && \ 
-	[-f csd_lmax10_wm_SD_STREAM.tck ] && [-f csd_lmax10_wm_SD_PROB.tck ] && [ -f csd_lmax12_wm_SD_STREAM.tck ] && [ -f csd_lmax12_wm_SD_PROB.tck ]; then
+	[ -f csd_lmax10_wm_SD_STREAM.tck ] && [ -f csd_lmax10_wm_SD_PROB.tck ] && [ -f csd_lmax12_wm_SD_STREAM.tck ] && [ -f csd_lmax12_wm_SD_PROB.tck ]; then
 	echo "csd tck files all exist....skipping"
 else
 
