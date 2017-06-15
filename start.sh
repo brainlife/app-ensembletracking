@@ -6,7 +6,7 @@ if [ -z $SERVICE_DIR ]; then export SERVICE_DIR=`pwd`; fi
 #clean up previous job (just in case)
 rm -f finished
 
-if [ $ENV =="IUHPC" ]; then
+if [ $ENV == "IUHPC" ]; then
 
     jobid=`qsub $SERVICE_DIR/submit.pbs`
     echo $jobid > jobid
