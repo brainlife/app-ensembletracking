@@ -1,13 +1,20 @@
 function [] = main()
 
-if isempty(getenv('SCA_SERVICE_DIR'))
-    disp('setting SCA_SERVICE_DIR to pwd')
-    setenv('SCA_SERVICE_DIR', pwd)
+if isempty(getenv('SERVICE_DIR'))
+    disp('setting SERVICE_DIR to pwd')
+    setenv('SERVICE_DIR', pwd)
 end
 
-disp('loading paths')
-addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
-addpath(genpath('/N/u/hayashis/BigRed2/git/jsonlab'))
+switch getenv('ENV')
+case 'IUHPC'
+        disp('loading paths (HPC)')
+        addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
+        addpath(genpath('/N/u/hayashis/BigRed2/git/jsonlab'))
+case 'VM'
+        disp('loading paths (VM)')
+  	addpath(genpath('/usr/local/jsonlab'))
+	addpath(genpath('/usr/local/vistasoft'))
+
 
 config = loadjson('config.json');
 

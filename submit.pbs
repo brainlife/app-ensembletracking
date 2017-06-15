@@ -3,20 +3,27 @@
 #PBS -N app-ensembletracking
 #PBS -V
 
-cd $PBS_O_WORKDIR
+if [ $ENV == "IUHPC" ]; then
 
+    cd $PBS_O_WORKDIR
 
-module load mrtrix/0.2.12
-module load freesurfer/6.0.0
-module load matlab
+    module load mrtrix/0.2.12
+    module load freesurfer/6.0.0
+    module load matlab
+fi
+
+if [ $ENV == "VM" ]; then
+    export FREESURFER_HOME=/usr/local/freesurfer
+    source $FREESURFER_HOME/SetUpFreeSurfer.sh
+fi
 
 BGRAD="grad.b"
 
-input_nii_gz=`$SCA_SERVICE_DIR/jq -r '.dwi' config.json`
-BVALS=`$SCA_SERVICE_DIR/jq -r '.bvals' config.json`
-BVECS=`$SCA_SERVICE_DIR/jq -r '.bvecs' config.json`
-NUMFIBERS=`$SCA_SERVICE_DIR/jq -r '.fibers' config.json`
-MAXNUMFIBERSATTEMPTED=`$SCA_SERVICE_DIR/jq -r '.fibers_max' config.json`
+input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
+BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
+BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
+NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
+MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 WMMASK=wm.nii.gz
 
 echo "input_nii_gz:$input_nii_gz"

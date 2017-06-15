@@ -9,7 +9,7 @@ function out = make_wm_mask( config )
 invals  = [2 41 16 17 28 60 51 53 12 52 13 18 ...
            54 50 11 251 252 253 254 255 10 49 46 7];
 
-% We save always int he current directory by SCA mandate.
+% We save always in the current directory by SCA mandate.
 wmMaskFile = 'wm.nii.gz';
 
 % Find the FreeSurfer files

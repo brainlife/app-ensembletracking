@@ -1,10 +1,12 @@
 function ensemble_connectome_generator()
 
-disp('loading paths')
-addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
-% addpath(genpath('/N/u/hayashis/BigRed2/git/jsonlab'))
-% 
-% config = loadjson('config.json');
+switch getenv('ENV')
+case 'IUHPC'
+        disp('loading paths (HPC)')
+        addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
+case 'VM'
+        disp('loading paths (VM)')
+  	addpath(genpath('/usr/local/jsonlab'))
 
 
 
