@@ -168,10 +168,10 @@ else
 	# loop over tracking and lmax
 	for i_tracktype in SD_STREAM SD_PROB; do
 
-	#echo Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
+		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 
     		for i_lmax in 2 4 6 8 10 12; do
-		#echo Tracking CSD-based Lmax=$i_lmax
+		echo Tracking CSD-based Lmax=$i_lmax
 		#streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
        		streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
    		done
