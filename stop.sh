@@ -15,5 +15,5 @@ if [ $ENV == "VM" ]; then
     pid=`cat pid`
     echo "running kill" 
     #kill $pid
-    kill -- -$(ps -o pgid= $PID | grep -o [0-9]*)
+    kill -- -$(ps -o pgid= $pid | grep -o [0-9]*)
 fi
