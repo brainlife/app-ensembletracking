@@ -29,8 +29,12 @@ WMMASK=wm.nii.gz
 echo "input_nii_gz:$input_nii_gz"
 echo "BGRAD:$BGRAD"
 
-export MATLABPATH=$MATLABPATH:$SCA_SERVICE_DIR
-time matlab -nodisplay -nosplash -r main
+if [ -f grad.b ] && [ -f wm.nii.gz ]; then
+	echo "grad.b and wm.nii.gz exist... skipping"
+else
+	export MATLABPATH=$MATLABPATH:$SCA_SERVICE_DIR
+	time matlab -nodisplay -nosplash -r main
+fi
 
 echo "converting wm.nii.gz to wm.mif"
 if [ -f wm.mif ]; then
