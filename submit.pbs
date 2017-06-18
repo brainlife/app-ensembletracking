@@ -41,6 +41,10 @@ if [ -f wm.mif ]; then
     echo "wm.mif already exist... skipping"
 else
     time mrconvert --quiet $WMMASK wm.mif
+    if [ ! $ret -eq 0 ]; then
+       
+        echo $ret > finished
+        exit $ret
 fi
 
 
