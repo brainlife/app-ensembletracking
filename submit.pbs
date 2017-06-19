@@ -16,6 +16,7 @@ if [ $ENV == "VM" ]; then
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
 fi
 
+
 BGRAD="grad.b"
 
 input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
@@ -24,13 +25,15 @@ BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 
+#look for matlab script in service installation directory
+export MATLABPATH=$MATLABPATH:$SERVICE_DIR
+
 echo "input_nii_gz:$input_nii_gz"
 echo "BGRAD:$BGRAD"
 
 if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else
-	export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 	time matlab -nodisplay -nosplash -r main
 fi
 
