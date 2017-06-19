@@ -163,7 +163,7 @@ for i_track in 01; do
 		for i_lmax in 2 4 6 8 10 12; do
 			echo Tracking CSD-based Lmax=$i_lmax
 			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
-			if [ -s $outfile ]l then
+			if [ -s $outfile ]; then
 				echo "$outfile already exist - skipping streamtracking"
 			else
 				streamtrack $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
