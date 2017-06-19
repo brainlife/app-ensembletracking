@@ -7,8 +7,7 @@ case 'IUHPC'
 case 'VM'
         disp('loading paths (VM)')
   	addpath(genpath('/usr/local/vistasoft'))
-
-
+end
 
 % Curvature paramater (lmax)
 lmaxparam = {'2','4','6','8','10','12'};

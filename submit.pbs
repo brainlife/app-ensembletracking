@@ -145,53 +145,36 @@ echo DONE performing preprocessing of data before starting tracking...
 
 ###################################################################################################
 
-echo START tracking...
-if [ -f wm_tensor.tck ]; then
-   echo "wm_tensor.tck already exists....skipping"
-else
 #echo tracking Deterministic Tensorbased
-	for i_track in 01; do
-	#streamtrack DT_STREAM dwi.mif wm_tensor-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+for i_track in 01; do
+	#TODO i_track not used here..
+
+	if [ -s wm_tensor.tck ]; then
+		echo "wm_tensor.tck already exists....skipping"
+	else
 		streamtrack DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-	done
-fi
+	fi
+done
 
-if [ -f csd_lmax2_wm_SD_STREAM.tck ] && [ -f csd_lmax2_wm_SD_PROB.tck ] && [ -f csd_lmax4_wm_SD_STREAM.tck ] && [ -f csd_lmax4_wm_SD_PROB.tck ] && \
-	[ -f csd_lmax6_wm_SD_STREAM.tck ] && [ -f csd_lmax6_wm_SD_PROB.tck ] && [ -f csd_lmax8_wm_SD_STREAM.tck ] && [ -f csd_lmax8_wm_SD_PROB.tck ] && \ 
-	[ -f csd_lmax10_wm_SD_STREAM.tck ] && [ -f csd_lmax10_wm_SD_PROB.tck ] && [ -f csd_lmax12_wm_SD_STREAM.tck ] && [ -f csd_lmax12_wm_SD_PROB.tck ]; then
-	echo "csd tck files all exist....skipping"
-else
-
-	for i_track in 01; do
-		# loop over tracking and lmax
-		for i_tracktype in SD_STREAM SD_PROB; do
-
-			echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
-
-			for i_lmax in 2 4 6 8 10 12; do
-				echo Tracking CSD-based Lmax=$i_lmax
-				#streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-				streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-			done
-
-		#echo DONE Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
-
+for i_track in 01; do
+	# loop over tracking and lmax
+	for i_tracktype in SD_STREAM SD_PROB; do
+		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+		for i_lmax in 2 4 6 8 10 12; do
+			echo Tracking CSD-based Lmax=$i_lmax
+			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
+			if [ -s $outfile ]l then
+				echo "$outfile already exist - skipping streamtracking"
+			else
+				streamtrack $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			fi
 		done
 	done
-fi
+done
+echo "DONE tracking."
 
-echo DONE tracking. 
-
-echo creating ensemble tractography
-
+echo "creating ensemble tractography"
 matlab -nodisplay -nosplash -r ensemble_connectome_generator
-
-#cat_tracks track.tck csd_lmax2_wm_SD_STREAM.tck csd_lmax2_wm_SD_PROB.tck csd_lmax4_wm_SD_STREAM.tck csd_lmax4_wm_SD_PROB.tck\
-#	csd_lmax6_wm_SD_STREAM.tck csd_lmax6_wm_SD_PROB.tck csd_lmax8_wm_SD_STREAM.tck csd_lmax8_wm_SD_PROB.tck\ 
-#	csd_lmax10_wm_SD_STREAM.tck csd_lmax10_wm_SD_PROB.tck csd_lmax12_wm_SD_STREAM.tck csd_lmax12_wm_SD_PROB.tck\ 
-#	wm_tensor.tck
-
-#check for output files
 if [ -s track.mat ];
 then
 	echo 0 > finished
