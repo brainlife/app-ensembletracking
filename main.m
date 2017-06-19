@@ -14,7 +14,7 @@ case 'VM'
         disp('loading paths (VM)')
   	addpath(genpath('/usr/local/jsonlab'))
 	addpath(genpath('/usr/local/vistasoft'))
-
+end
 
 config = loadjson('config.json');
 
@@ -22,8 +22,6 @@ config = loadjson('config.json');
 out   = 'grad.b';
 mrtrix_bfileFromBvecs(config.bvecs, config.bvals, out);
 
-
 % load my own config.json
-
 [ out ] = make_wm_mask(config);
 end

@@ -37,3 +37,5 @@ for ii = 1:length(origvals);
     end
 end
 niftiWrite(wm);
+
+end

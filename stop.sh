@@ -5,13 +5,13 @@ if [ -f finished ]; then
     exit 1
 fi
 
-if [ $ENV == "IUHPC" ]; then
+if [ -f jobid ]; then
     jobid=`cat jobid`
     echo "running qdel $jobid"
     qdel $jobid
 fi
 
-if [ $ENV == "VM" ]; then
+if [ -f pid ]; then
     pid=`cat pid`
     echo "running kill" 
     #kill $pid

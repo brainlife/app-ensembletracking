@@ -4,7 +4,6 @@
 #PBS -V
 
 if [ $ENV == "IUHPC" ]; then
-
     cd $PBS_O_WORKDIR
 
     module load mrtrix/0.2.12
@@ -24,7 +23,6 @@ BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
-WMMASK=wm.nii.gz
 
 echo "input_nii_gz:$input_nii_gz"
 echo "BGRAD:$BGRAD"
@@ -32,7 +30,7 @@ echo "BGRAD:$BGRAD"
 if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else
-	export MATLABPATH=$MATLABPATH:$SCA_SERVICE_DIR
+	export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 	time matlab -nodisplay -nosplash -r main
 fi
 
@@ -40,13 +38,13 @@ echo "converting wm.nii.gz to wm.mif"
 if [ -f wm.mif ]; then
     echo "wm.mif already exist... skipping"
 else
-    time mrconvert --quiet $WMMASK wm.mif
+    time mrconvert --quiet wm.nii.gz wm.mif
+    ret=$?
     if [ ! $ret -eq 0 ]; then
-       
         echo $ret > finished
         exit $ret
+    fi
 fi
-
 
 echo "converting dwi input to mif (should take a few minutes)"
 if [ -f dwi.mif ]; then
@@ -58,11 +56,8 @@ else
        
         echo $ret > finished
         exit $ret
-       
     fi
 fi
-
-
 
 
 ###################################################################################################
@@ -77,7 +72,6 @@ else
 
         echo $ret > finished
         exit $ret
-   
     fi
 fi
 
@@ -87,7 +81,6 @@ echo "fit tensor model (takes about 16 minutes)"
 if [ -f dt.mif ]; then
     echo "dt.mif already exist... skipping"
 else
-   
     time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
 fi
 
@@ -96,7 +89,6 @@ if [ -f fa.mif ]; then
 else
    
     time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
-   
 fi
 
 
@@ -109,7 +101,6 @@ else
       
         echo $ret > finished
         exit $ret
-    
     fi 
 fi
 ###################################################################################################
@@ -131,7 +122,6 @@ else
        
         echo $ret > finished
         exit $ret
-   
     fi
 fi
 
@@ -150,10 +140,7 @@ fi
 echo DONE performing preprocessing of data before starting tracking...
 
 
-
 ###################################################################################################
-
-
 
 echo START tracking...
 if [ -f wm_tensor.tck ]; then
@@ -173,20 +160,20 @@ if [ -f csd_lmax2_wm_SD_STREAM.tck ] && [ -f csd_lmax2_wm_SD_PROB.tck ] && [ -f 
 else
 
 	for i_track in 01; do
-	# loop over tracking and lmax
-	for i_tracktype in SD_STREAM SD_PROB; do
+		# loop over tracking and lmax
+		for i_tracktype in SD_STREAM SD_PROB; do
 
-		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+			echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 
-    		for i_lmax in 2 4 6 8 10 12; do
-		echo Tracking CSD-based Lmax=$i_lmax
-		#streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-       		streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-   		done
+			for i_lmax in 2 4 6 8 10 12; do
+				echo Tracking CSD-based Lmax=$i_lmax
+				#streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}-NUM${i_track}-$NUMFIBERS.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+				streamtrack $i_tracktype lmax${i_lmax}.mif  csd_lmax${i_lmax}_wm_${i_tracktype}.tck -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			done
 
-	#echo DONE Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
+		#echo DONE Tracking $i_tracktype Deterministic=1 Probabilistic=2 CSD-based
 
-	done
+		done
 	done
 fi
 
@@ -210,7 +197,4 @@ else
 	echo 1 > finished
 	exit 1
 fi
-
-
-
 
