@@ -3,8 +3,9 @@
 #PBS -N app-ensembletracking
 #PBS -V
 
+[ "$PBS_O_WORKDIR" ] && cd $PBS_O_WORKDIR
+
 if [ $ENV == "IUHPC" ]; then
-    cd $PBS_O_WORKDIR
 
     module load mrtrix/0.2.12
     module load freesurfer/6.0.0
