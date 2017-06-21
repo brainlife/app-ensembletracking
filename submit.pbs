@@ -5,8 +5,6 @@
 
 [ "$PBS_O_WORKDIR" ] && cd $PBS_O_WORKDIR
 
-#cat config.json
-
 if [ $ENV == "IUHPC" ]; then
     module load mrtrix/0.2.12
     module load freesurfer/6.0.0
