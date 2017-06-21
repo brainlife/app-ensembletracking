@@ -4,6 +4,12 @@ rm finished
 rm jobid
 rm app-ensembletracking*
 rm *.nii
+rm *.tck
+rm *.mif
+rm *.nii.gz
+rm track.mat
+rm grad.b
+rm response.txt
 #rm dtiInitLog.mat
 #rm -rf dti90trilin
 #rm -rf ROIs
