@@ -3,19 +3,22 @@
 #PBS -N app-ensembletracking
 #PBS -V
 
-if [ $ENV == "IUHPC" ]; then
-    cd $PBS_O_WORKDIR
+[ "$PBS_O_WORKDIR" ] && cd $PBS_O_WORKDIR
 
+#cat config.json
+
+if [ $ENV == "IUHPC" ]; then
     module load mrtrix/0.2.12
     module load freesurfer/6.0.0
     module load matlab
+
+    [ $ENV == "CARBONATE" ] && module load singularity
 fi
 
 if [ $ENV == "VM" ]; then
     export FREESURFER_HOME=/usr/local/freesurfer
     source $FREESURFER_HOME/SetUpFreeSurfer.sh
 fi
-
 
 BGRAD="grad.b"
 
@@ -28,8 +31,8 @@ MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 
-echo "input_nii_gz:$input_nii_gz"
-echo "BGRAD:$BGRAD"
+#echo "input_nii_gz:$input_nii_gz"
+#echo "BGRAD:$BGRAD"
 
 if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
@@ -49,19 +52,21 @@ else
     fi
 fi
 
-echo "converting dwi input to mif (should take a few minutes)"
+echo "converting $input_nii_gz to dwi.mif"
+alias
 if [ -f dwi.mif ]; then
     echo "dwi.mif already exist... skipping"
 else
-    time mrconvert --quiet $input_nii_gz dwi.mif
+    #time mrconvert --quiet $input_nii_gz dwi.mif
+    time mrconvert $input_nii_gz dwi.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
-       
         echo $ret > finished
         exit $ret
     fi
 fi
 
+echo "done convverting"
 
 ###################################################################################################
 
@@ -118,30 +123,31 @@ fi
 if [ -f response.txt ]; then
     echo "response.txt already exist... skipping"
 else
-    
     time estimate_response dwi.mif sf.mif -lmax 6 -grad $BGRAD response.txt
     ret=$?
     if [ ! $ret -eq 0 ]; then
-       
         echo $ret > finished
         exit $ret
     fi
 fi
 
-###################################################################################################
-if [ -f lmax2.mif ] && [ -f lmax4.mif ] && [ -f lmax6.mif ] && [ -f lmax8.mif ] && [ -f lmax10.mif ]  && [ -f lmax12.mif ]; then
-    echo "lmax files already exist... skipping"
-else
+# Perform CSD in each white matter voxel
+for i_lmax in 2 4 6 8 10 12; do
+	lmaxout=lmax${i_lmax}.mif
+	if [ -s $lmaxout ]; then
+		echo "$lmaxout already exist - skipping csdeconv"
+	else
+		time csdeconv dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
+		ret=$?
+		if [ ! $ret -eq 0 ]; then
+			echo $ret > finished
+			exit $ret
+		fi
+		
+	fi
+done 
 
-	# Perform CSD in each white matter voxel
-	for i_lmax in 2 4 6 8 10 12; do
-    		csdeconv dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif lmax${i_lmax}.mif
-  	 # echo DONE Lmax=$i_lmax 
-	done 
-fi
-
-echo DONE performing preprocessing of data before starting tracking...
-
+echo "DONE performing preprocessing of data before starting tracking..."
 
 ###################################################################################################
 
@@ -152,7 +158,12 @@ for i_track in 01; do
 	if [ -s wm_tensor.tck ]; then
 		echo "wm_tensor.tck already exists....skipping"
 	else
-		streamtrack DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+		time streamtrack DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask wm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+		ret=$?
+		if [ ! $ret -eq 0 ]; then
+			echo $ret > finished
+			exit $ret
+		fi
 	fi
 done
 
@@ -166,7 +177,12 @@ for i_track in 01; do
 			if [ -s $outfile ]; then
 				echo "$outfile already exist - skipping streamtracking"
 			else
-				streamtrack $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+				time streamtrack $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+				ret=$?
+				if [ ! $ret -eq 0 ]; then
+					echo $ret > finished
+					exit $ret
+				fi
 			fi
 		done
 	done

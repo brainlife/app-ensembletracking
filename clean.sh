@@ -1,8 +1,9 @@
 rm dwi_normalized*
 rm products.json
-rm sca-normalizebvals*
 rm finished
 rm jobid
+rm app-ensembletracking*
+rm *.nii
 #rm dtiInitLog.mat
 #rm -rf dti90trilin
 #rm -rf ROIs
