@@ -83,32 +83,32 @@ fi
 
 ###################################################################################################
 
-echo "fit tensor model (takes about 16 minutes)"
-if [ -f dt.mif ]; then
-    echo "dt.mif already exist... skipping"
-else
-    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
-fi
-
-if [ -f fa.mif ]; then
-    echo "fa.mif already exist... skipping"
-else
+#echo "fit tensor model (takes about 16 minutes)"
+#if [ -f dt.mif ]; then
+#    echo "dt.mif already exist... skipping"
+#else
+#    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
+#fi
+#
+#if [ -f fa.mif ]; then
+#    echo "fa.mif already exist... skipping"
+#else
    
-    time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
-fi
+#    time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
+#fi
 
 
-if [ -f ev.mif ]; then
-    echo "ev.mif already exist... skipping"
-else
-    time tensor2vector dt.mif - | mrmult - fa.mif ev.mif
-    ret=$?
-    if [ ! $ret -eq 0 ]; then
+#if [ -f ev.mif ]; then
+#    echo "ev.mif already exist... skipping"
+#else
+#    time tensor2vector dt.mif - | mrmult - fa.mif ev.mif
+#    ret=$?
+#    if [ ! $ret -eq 0 ]; then
       
-        echo $ret > finished
-        exit $ret
-    fi 
-fi
+#        echo $ret > finished
+#        exit $ret
+#    fi 
+#fi
 ###################################################################################################
 
 echo "estimate response function"
@@ -186,6 +186,9 @@ for i_track in 01; do
 	done
 done
 echo "DONE tracking."
+
+rm *.mif
+rm *.nii.gz
 
 echo "creating ensemble tractography"
 matlab -nodisplay -nosplash -r ensemble_connectome_generator
