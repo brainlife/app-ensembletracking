@@ -10,7 +10,7 @@ if [ $ENV == "IUHPC" ]; then
     module load freesurfer/6.0.0
     module load matlab
 
-    [ $ENV == "CARBONATE" ] && module load singularity
+    #[ $ENV == "CARBONATE" ] && module load singularity
 fi
 
 if [ $ENV == "VM" ]; then
@@ -81,22 +81,23 @@ else
     fi
 fi
 
-###################################################################################################
 
-#echo "fit tensor model (takes about 16 minutes)"
-#if [ -f dt.mif ]; then
-#    echo "dt.mif already exist... skipping"
-#else
-#    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
-#fi
-#
-#if [ -f fa.mif ]; then
-#    echo "fa.mif already exist... skipping"
-#else
+echo "fit tensor model (takes about 16 minutes)"
+if [ -f dt.mif ]; then
+    echo "dt.mif already exist... skipping"
+else
+    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
+fi
+
+if [ -f fa.mif ]; then
+    echo "fa.mif already exist... skipping"
+else
    
-#    time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
-#fi
+    time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
+fi
 
+
+###################################################################################################
 
 #if [ -f ev.mif ]; then
 #    echo "ev.mif already exist... skipping"
