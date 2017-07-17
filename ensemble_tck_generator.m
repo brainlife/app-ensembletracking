@@ -17,6 +17,7 @@ ens_names = {ens.name};
 
 % loop over and import all the ensemble connectomes
 %ens_fg = fgCreate('name', 'ens_fg');
+%dtiImportFibersMrtrix()
 ens_fg = fgRead(char(ens_names(1)));
 
 for ii = 2:length(ens_names)
