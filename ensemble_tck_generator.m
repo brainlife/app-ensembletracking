@@ -17,12 +17,12 @@ ens_names = {ens.name};
 
 % loop over and import all the ensemble connectomes
 %ens_fg = fgCreate('name', 'ens_fg');
-%dtiImportFibersMrtrix()
-ens_fg = fgRead(char(ens_names(1)));
+ens_fg = dtiImportFibersMrtrix(char(ens_names(1)), .5)
+%ens_fg = fgRead(char(ens_names(1)));
 
 for ii = 2:length(ens_names)
     
-    tfg = dtiImportFibersMrtrix(char(ens_names(ii)));
+    tfg = dtiImportFibersMrtrix(char(ens_names(ii), .5));
        
     % append the new streamlines to the fiber group
     ens_fg.fibers = [ ens_fg.fibers; tfg.fibers ];
