@@ -22,7 +22,7 @@ ens_fg = dtiImportFibersMrtrix(char(ens_names(1)), .5)
 
 for ii = 2:length(ens_names)
     
-    tfg = dtiImportFibersMrtrix(char(ens_names(ii), .5));
+    tfg = dtiImportFibersMrtrix(char(ens_names(ii)), .5);
        
     % append the new streamlines to the fiber group
     ens_fg.fibers = [ ens_fg.fibers; tfg.fibers ];
