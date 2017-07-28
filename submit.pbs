@@ -193,7 +193,7 @@ rm *.nii.gz
 
 echo "creating ensemble tractography"
 #matlab -nodisplay -nosplash -r ensemble_connectome_generator
-matlab -nodisplay -nosplasg -r ensemble_tck_generator
+matlab -nodisplay -nosplash -r ensemble_tck_generator
 
 #if [ -s track.mat ];
 
