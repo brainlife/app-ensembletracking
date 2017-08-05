@@ -9,6 +9,7 @@ if [ $ENV == "IUHPC" ]; then
     module load mrtrix/0.2.12
     module load freesurfer/6.0.0
     module load matlab
+    module load python
 
     #[ $ENV == "CARBONATE" ] && module load singularity
 fi
@@ -117,9 +118,9 @@ fi
 
 echo "determining which lmax values to use"
 
+python $SERVICE_DIR/calculatelmax.py 
+
 max_lmax='cat lmax.txt'
-
-
 
 
 ###################################################################################################
