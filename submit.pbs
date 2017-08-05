@@ -26,6 +26,8 @@ BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
+MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
+CALCLMAX=`$SERVICE_DIR/jq -r '.calculate_lmax' config.json`
 
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
@@ -116,11 +118,17 @@ fi
 
 ###################################################################################################
 
-echo "determining which lmax values to use"
+if [ $CALCLMAX = true ]; then
+	echo "determining which lmax values to use"
+	
+	python $SERVICE_DIR/calculatelmax.py 
+	max_lmax='cat lmax.txt'
+fi
 
-python $SERVICE_DIR/calculatelmax.py 
-
-max_lmax='cat lmax.txt'
+if [ $CALCLMAX = false ]; then
+	max_lmax=$MAXLMAX
+fi
+	
 
 
 ###################################################################################################
