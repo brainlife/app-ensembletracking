@@ -27,9 +27,13 @@ BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 
-#if max_lmax is not set, it will be auto-calculated
+#if max_lmax is empty, auto calculate
 MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
-#CALCLMAX=`$SERVICE_DIR/jq -r '.calculate_lmax' config.json`
+if [ -z $MAXLMAX ]; then
+	echo "max_lmax is empty.. determining which lmax to use from .bvals"
+	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
+fi
+echo "Using MAXLMAX: $MAXLMAX"
 
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
@@ -94,7 +98,6 @@ fi
 if [ -f fa.mif ]; then
     echo "fa.mif already exist... skipping"
 else
-   
     time tensor2FA dt.mif - | mrmult - brainmask.mif fa.mif
 fi
 
@@ -117,14 +120,6 @@ else
         exit $ret
     fi
 fi
-
-###################################################################################################
-
-if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
-	echo "max_lmax not set (or empty).. determining which lmax to use from .bvals"
-	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
-fi
-echo "Using MAXLMAX: $MAXLMAX"
 
 ###################################################################################################
 

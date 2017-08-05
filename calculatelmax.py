@@ -23,8 +23,9 @@ lmax=0
 while (lmax+3)*(lmax+4)/2 <= count:
        lmax+=2
 
-print "lmax should be ", lmax, "for bvals:", count
+#print "lmax should be ", lmax, "for bvals:", count
+print lmax
 
-outfile = open('lmax.txt', 'w')
-outfile.write(str(lmax))
-outfile.close()
+#outfile = open('lmax.txt', 'w')
+#outfile.write(str(lmax))
+#outfile.close()
