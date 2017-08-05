@@ -115,8 +115,19 @@ fi
 
 ###################################################################################################
 
+echo "determining which lmax values to use"
+
+max_lmax='cat lmax.txt'
+
+
+
+
+###################################################################################################
+
+
+for (( i_lmax=2; i_lmax<=max; i_lmax+=2 )); do
 # Perform CSD in each white matter voxel
-for i_lmax in 2 4 6 8 10 12; do
+#for i_lmax in 2 4 6 8 10 12; do
 	lmaxout=lmax${i_lmax}.mif
 	if [ -s $lmaxout ]; then
 		echo "$lmaxout already exist - skipping csdeconv"
@@ -155,7 +166,8 @@ for i_track in 01; do
 	# loop over tracking and lmax
 	for i_tracktype in SD_STREAM SD_PROB; do
 		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
-		for i_lmax in 2 4 6 8 10 12; do
+		for (( i_lmax=2; i_lmax<=max; i_lmax+=2 )); do
+		#for i_lmax in 2 4 6 8 10 12; do
 			echo Tracking CSD-based Lmax=$i_lmax
 			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
 			if [ -s $outfile ]; then
