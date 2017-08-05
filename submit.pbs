@@ -26,8 +26,10 @@ BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
+
+#if max_lmax is not set, it will be auto-calculated
 MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
-CALCLMAX=`$SERVICE_DIR/jq -r '.calculate_lmax' config.json`
+#CALCLMAX=`$SERVICE_DIR/jq -r '.calculate_lmax' config.json`
 
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
@@ -118,23 +120,15 @@ fi
 
 ###################################################################################################
 
-if [ -z "$CALCLMAX" ] || [ $CALCLMAX = true ]; then
-	echo "determining which lmax values to use"
-	
-	python $SERVICE_DIR/calculatelmax.py 
-	max_lmax=`cat lmax.txt`
+if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
+	echo "max_lmax not set (or empty).. determining which lmax to use from .bvals"
+	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
 fi
-
-if [ $CALCLMAX = false ]; then
-	max_lmax=$MAXLMAX
-fi
-	
-
+echo "Using MAXLMAX: $MAXLMAX"
 
 ###################################################################################################
 
-
-for (( i_lmax=2; i_lmax<=max_lmax; i_lmax+=2 )); do
+for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 # Perform CSD in each white matter voxel
 #for i_lmax in 2 4 6 8 10 12; do
 	lmaxout=lmax${i_lmax}.mif
@@ -172,10 +166,10 @@ for i_track in 01; do
 done
 
 for i_track in 01; do
-	# loop over tracking and lmax
+	# loop over tracking and 	
 	for i_tracktype in SD_STREAM SD_PROB; do
 		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
-		for (( i_lmax=2; i_lmax<=max_lmax; i_lmax+=2 )); do
+		for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		#for i_lmax in 2 4 6 8 10 12; do
 			echo Tracking CSD-based Lmax=$i_lmax
 			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
