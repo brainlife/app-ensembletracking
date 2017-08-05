@@ -122,7 +122,7 @@ if [ $CALCLMAX = true ]; then
 	echo "determining which lmax values to use"
 	
 	python $SERVICE_DIR/calculatelmax.py 
-	max_lmax='cat lmax.txt'
+	max_lmax=`cat lmax.txt`
 fi
 
 if [ $CALCLMAX = false ]; then
