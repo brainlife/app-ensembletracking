@@ -118,7 +118,7 @@ fi
 
 ###################################################################################################
 
-if [ $CALCLMAX = true ]; then
+if [ -z "$CALCLMAX" ] || [ $CALCLMAX = true ]; then
 	echo "determining which lmax values to use"
 	
 	python $SERVICE_DIR/calculatelmax.py 
