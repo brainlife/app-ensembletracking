@@ -29,7 +29,7 @@ MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
-if [ -z $MAXLMAX ]; then
+if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
 	echo "max_lmax is empty.. determining which lmax to use from .bvals"
 	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
 fi
