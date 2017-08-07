@@ -113,7 +113,8 @@ fi
 if [ -f response.txt ]; then
     echo "response.txt already exist... skipping"
 else
-    time estimate_response -quiet dwi.mif sf.mif -lmax 6 -grad $BGRAD response.txt
+#    time estimate_response -quiet dwi.mif sf.mif -lmax 6 -grad $BGRAD response.txt
+    time estimate_response -quiet dwi.mif sf.mif -grad $BGRAD response.txt
     ret=$?
     if [ ! $ret -eq 0 ]; then
         echo $ret > finished
