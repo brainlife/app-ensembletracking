@@ -26,6 +26,8 @@ BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
 NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
+DOPROB=`$SERVICE_DIR/jq -r '.do_probabilistic' config.json`
+DOSTREAM=`$SERVICE_DIR/jq -r '.do_deterministic' config.json`
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
@@ -161,27 +163,67 @@ for i_track in 01; do
 	fi
 done
 
-for i_track in 01; do
-	# loop over tracking and 	
-	for i_tracktype in SD_STREAM SD_PROB; do
-		echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
-		for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		#for i_lmax in 2 4 6 8 10 12; do
-			echo Tracking CSD-based Lmax=$i_lmax
-			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
-			if [ -s $outfile ]; then
-				echo "$outfile already exist - skipping streamtracking"
-			else
-				time streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-				ret=$?
-				if [ ! $ret -eq 0 ]; then
-					echo $ret > finished
-					exit $ret
-				fi
+if [ "$DOPROB" = true ] ; then
+	i_tracktype=SD_PROB
+	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	#for i_lmax in 2 4 6 8 10 12; do
+		echo Tracking CSD-based Lmax=$i_lmax
+		outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
+		if [ -s $outfile ]; then
+			echo "$outfile already exist - skipping streamtracking"
+		else
+			time streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			ret=$?
+			if [ ! $ret -eq 0 ]; then
+				echo $ret > finished
+				exit $ret
 			fi
-		done
+		fi
 	done
-done
+fi
+
+if [ "$DOSTREAM" = true ] ; then
+	i_tracktype=SD_STREAM
+	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+	#for i_lmax in 2 4 6 8 10 12; do
+		echo Tracking CSD-based Lmax=$i_lmax
+		outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
+		if [ -s $outfile ]; then
+			echo "$outfile already exist - skipping streamtracking"
+		else
+			time streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			ret=$?
+			if [ ! $ret -eq 0 ]; then
+				echo $ret > finished
+				exit $ret
+			fi
+		fi
+	done
+fi
+
+
+# loop over tracking and 	
+#for i_tracktype in SD_STREAM SD_PROB; do
+#	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+#	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+#	#for i_lmax in 2 4 6 8 10 12; do
+#		echo Tracking CSD-based Lmax=$i_lmax
+#		outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
+#		if [ -s $outfile ]; then
+#			echo "$outfile already exist - skipping streamtracking"
+#		else
+#			time streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+#			ret=$?
+#			if [ ! $ret -eq 0 ]; then
+#				echo $ret > finished
+#				exit $ret
+#			fi
+#		fi
+#	done
+#done
+
 
 ###################################################################################################
 
