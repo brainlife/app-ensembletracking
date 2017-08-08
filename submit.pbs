@@ -148,9 +148,7 @@ echo "DONE performing preprocessing of data before starting tracking..."
 ###################################################################################################
 
 #echo tracking Deterministic Tensorbased
-for i_track in 01; do
-	#TODO i_track not used here..
-
+if [ "$DOSTREAM" = true ] ; then
 	if [ -s wm_tensor.tck ]; then
 		echo "wm_tensor.tck already exists....skipping"
 	else
@@ -161,7 +159,7 @@ for i_track in 01; do
 			exit $ret
 		fi
 	fi
-done
+fi
 
 if [ "$DOPROB" = true ] ; then
 	i_tracktype=SD_PROB
