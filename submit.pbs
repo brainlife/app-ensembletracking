@@ -150,7 +150,7 @@ echo "DONE performing preprocessing of data before starting tracking..."
 
 #echo tracking Deterministic Tensorbased
 
-if [[ $DOTENSOR == "true" || -z $DOTENSOR ]] ; then
+if [ $DOTENSOR == "true" ] ; then
 	echo "tensor tracking"
 	if [ -s wm_tensor.tck ]; then
 		echo "wm_tensor.tck already exists....skipping"
@@ -164,7 +164,7 @@ if [[ $DOTENSOR == "true" || -z $DOTENSOR ]] ; then
 	fi
 fi
 
-if [[ $DOPROB == "true" || -z $DOPROB ]] ; then
+if [ $DOPROB == "true" ] ; then
 	i_tracktype=SD_PROB
 	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
@@ -184,7 +184,7 @@ if [[ $DOPROB == "true" || -z $DOPROB ]] ; then
 	done
 fi
 
-if [[ $DOSTREAM == "true" || -z $DOSTREAM ]] ; then
+if [ $DOSTREAM == "true" ] ; then
 	i_tracktype=SD_STREAM
 	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
