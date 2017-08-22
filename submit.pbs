@@ -24,7 +24,7 @@ BGRAD="grad.b"
 input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
 BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
-NUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
+TOTALNUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
 DOPROB=`$SERVICE_DIR/jq -r '.do_probabilistic' config.json`
 DOSTREAM=`$SERVICE_DIR/jq -r '.do_deterministic' config.json`
@@ -37,6 +37,8 @@ if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
 	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
 fi
 echo "Using MAXLMAX: $MAXLMAX"
+
+NUMFIBERS=$(python $SERVICE_DIR/calculatetracks.py $MAXLMAX)
 
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
