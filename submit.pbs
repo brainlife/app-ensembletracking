@@ -40,6 +40,8 @@ echo "Using MAXLMAX: $MAXLMAX"
 
 NUMFIBERS=$(python $SERVICE_DIR/calculatetracks.py $MAXLMAX)
 
+MAXNUMBERFIBERSATTEMPTED=$(($NUMFIBERS*2))
+
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 
