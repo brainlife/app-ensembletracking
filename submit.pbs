@@ -3,6 +3,8 @@
 #PBS -N app-ensembletracking
 #PBS -V
 
+if [ -z $SERVICE_DIR ]; then export SERVICE_DIR=`pwd`; fi
+
 [ "$PBS_O_WORKDIR" ] && cd $PBS_O_WORKDIR
 
 if [ $ENV == "IUHPC" ]; then
@@ -24,8 +26,7 @@ BGRAD="grad.b"
 input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
 BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
 BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
-TOTALNUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
-#MAXNUMFIBERSATTEMPTED=`$SERVICE_DIR/jq -r '.fibers_max' config.json`
+#TOTALNUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 DOPROB=`$SERVICE_DIR/jq -r '.do_probabilistic' config.json`
 DOSTREAM=`$SERVICE_DIR/jq -r '.do_deterministic' config.json`
 DOTENSOR=`$SERVICE_DIR/jq -r '.do_tensor' config.json`
@@ -34,13 +35,15 @@ DOTENSOR=`$SERVICE_DIR/jq -r '.do_tensor' config.json`
 MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
 	echo "max_lmax is empty.. determining which lmax to use from .bvals"
-	MAXLMAX=$(python $SERVICE_DIR/calculatelmax.py)
+	MAXLMAX=`$SERVICE_DIR/calculatelmax.py`
 fi
+
+NUMFIBERS=`$SERVICE_DIR/calculatetracks.py $MAXLMAX`
+MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*2))
+
 echo "Using MAXLMAX: $MAXLMAX"
-
-NUMFIBERS=$(python $SERVICE_DIR/calculatetracks.py $MAXLMAX)
-
-MAXNUMBERFIBERSATTEMPTED=$(($NUMFIBERS*2))
+echo "Using NUMFIBERS per each track: $NUMFIBERS"
+echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
 
 #look for matlab script in service installation directory
 export MATLABPATH=$MATLABPATH:$SERVICE_DIR
@@ -207,28 +210,6 @@ if [ $DOSTREAM == "true" ] ; then
 		fi
 	done
 fi
-
-
-# loop over tracking and 	
-#for i_tracktype in SD_STREAM SD_PROB; do
-#	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
-#	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-#	#for i_lmax in 2 4 6 8 10 12; do
-#		echo Tracking CSD-based Lmax=$i_lmax
-#		outfile=csd_lmax${i_lmax}_wm_${i_tracktype}.tck
-#		if [ -s $outfile ]; then
-#			echo "$outfile already exist - skipping streamtracking"
-#		else
-#			time streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif  -mask wm.mif  -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-#			ret=$?
-#			if [ ! $ret -eq 0 ]; then
-#				echo $ret > finished
-#				exit $ret
-#			fi
-#		fi
-#	done
-#done
-
 
 ###################################################################################################
 

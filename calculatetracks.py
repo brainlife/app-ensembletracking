@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#this script calcualtes number of expected output tracks based on config.json and lmax as input (from calculatelmax.py)
+#this script calcualtes number of fibers that each tracking app should create.
 # ./calculatetracks.py $MAXLMAX
 
 import json
@@ -17,5 +17,5 @@ with open('config.json') as config_json:
     if config['do_deterministic']: tracks+=tracks_per_algorithm 
     
     totaltracks=config['fibers']
-    numfibers = round(totaltracks/tracks)
+    numfibers = int(totaltracks/tracks)
     print numfibers
