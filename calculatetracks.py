@@ -18,4 +18,4 @@ with open('config.json') as config_json:
     
     totaltracks=config['fibers']
     numfibers = round(totaltracks/tracks)
-    print tracks
+    print numfibers
