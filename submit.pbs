@@ -141,7 +141,7 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 	if [ -s $lmaxout ]; then
 		echo "$lmaxout already exist - skipping csdeconv"
 	else
-		time csdeconv dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
+		time csdeconv -quiet dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
 		ret=$?
 		if [ ! $ret -eq 0 ]; then
 			echo $ret > finished
