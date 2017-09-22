@@ -28,7 +28,7 @@ echo $dtiinit
 input_nii_gz=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
 echo $input_nii_gz
 BVALS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-BVECS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvals' $dtiinit/dt6.json
+BVECS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
 #input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
 #BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
