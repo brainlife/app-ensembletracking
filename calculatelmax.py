@@ -7,13 +7,18 @@ Created on Fri Aug  4 20:06:19 2017
 """
 
 import json
+import os
 
-with open('config.json') as config_json:
-    config = json.load(config_json)
+# get bvals file path
+bvals= os.environ['BVALS']
+
+#with open('config.json') as config_json:
+#    config = json.load(config_json)
 
 
 #get non0 bvals
-f = open(config["bvals"], 'r')
+#f = open(config["bvals"], 'r')
+f = open(bvals, 'r')
 line = f.readline().strip().replace(",", " ")
 bvals = line.split(" ")
 bvals_non0 = filter(lambda v: v != "0", bvals)
