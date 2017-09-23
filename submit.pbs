@@ -109,7 +109,7 @@ echo "fit tensor model (takes about 16 minutes)"
 if [ -f dt.mif ]; then
     echo "dt.mif already exist... skipping"
 else
-    time dwi2tensor -quiet dwi.mif -grad $BGRAD dt.mif 
+    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
 fi
 
 if [ -f fa.mif ]; then
