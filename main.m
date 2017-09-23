@@ -17,7 +17,7 @@ case 'VM'
 end
 
 config = loadjson('config.json');
-dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json');
+dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json'));
 
 %bvecs = getenv('BVECS');
 %bvals = getenv('BVALS');
