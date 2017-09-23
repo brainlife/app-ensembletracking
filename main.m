@@ -23,8 +23,6 @@ dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json'));
 %% Create an MRTRIX .b file from the bvals/bvecs of the shell chosen to run
 out   = 'grad.b';
 %mrtrix_bfileFromBvecs(config.bvecs, config.bvals, out);
-fullfile(config.dtiinit,dt6config.files.alignedDwBvecs)
-fullfile(config.dtiinit,dt6config.files.alignedDwBvals)
 mrtrix_bfileFromBvecs(fullfile(config.dtiinit,dt6config.files.alignedDwBvecs), fullfile(config.dtiinit,dt6config.files.alignedDwBvals), out);
 
 % load my own config.json
