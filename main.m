@@ -18,13 +18,10 @@ end
 
 config = loadjson('config.json');
 dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json'));
-%bvecs = getenv('BVECS');
-%bvals = getenv('BVALS');
+
 %% Create an MRTRIX .b file from the bvals/bvecs of the shell chosen to run
-out   = 'grad.b';
-%mrtrix_bfileFromBvecs(config.bvecs, config.bvals, out);
-mrtrix_bfileFromBvecs(fullfile(config.dtiinit,dt6config.files.alignedDwBvecs), fullfile(config.dtiinit,dt6config.files.alignedDwBvals), out);
+mrtrix_bfileFromBvecs(fullfile(config.dtiinit,dt6config.files.alignedDwBvecs), fullfile(config.dtiinit,dt6config.files.alignedDwBvals), 'grad.b');
 
 % load my own config.json
-[ out ] = make_wm_mask(config);
+make_wm_mask(config);
 end

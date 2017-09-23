@@ -1,7 +1,9 @@
 #!/bin/bash
 #PBS -l nodes=1:ppn=8:dc2,walltime=9:30:00
-#PBS -N app-ensembletracking
+#PBS -N ensembletracking
 #PBS -V
+#PBS -o stdout.$PBS_JOBID.log
+#PBS -e stderr.$PBS_JOBID.log
 
 if [ -z $SERVICE_DIR ]; then export SERVICE_DIR=`pwd`; fi
 
@@ -12,8 +14,6 @@ if [ $ENV == "IUHPC" ]; then
     module load freesurfer/6.0.0
     module load matlab
     module load python
-
-    #[ $ENV == "CARBONATE" ] && module load singularity
 fi
 
 if [ $ENV == "VM" ]; then
@@ -24,16 +24,10 @@ fi
 BGRAD="grad.b"
 
 dtiinit=`$SERVICE_DIR/jq -r '.dtiinit' config.json`
-echo $dtiinit
 export input_nii_gz=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-echo $input_nii_gz
 export BVALS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
 export BVECS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
-#input_nii_gz=`$SERVICE_DIR/jq -r '.dwi' config.json`
-#BVALS=`$SERVICE_DIR/jq -r '.bvals' config.json`
-#BVECS=`$SERVICE_DIR/jq -r '.bvecs' config.json`
-#TOTALNUMFIBERS=`$SERVICE_DIR/jq -r '.fibers' config.json`
 DOPROB=`$SERVICE_DIR/jq -r '.do_probabilistic' config.json`
 DOSTREAM=`$SERVICE_DIR/jq -r '.do_deterministic' config.json`
 DOTENSOR=`$SERVICE_DIR/jq -r '.do_tensor' config.json`
@@ -58,6 +52,7 @@ export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else
+	echo "starting matlab to create grad.b & wm.nii.gz"
 	time matlab -nodisplay -nosplash -r main
 fi
 
@@ -68,6 +63,7 @@ else
     time mrconvert --quiet wm.nii.gz wm.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
+	echo "failed to mrconver wm.nii.gz to wm.mif"
         echo $ret > finished
         exit $ret
     fi
@@ -94,7 +90,7 @@ echo "make brainmask from dwi data (about 18 minutes)"
 if [ -f brainmask.mif ]; then
     echo "brainmask.mif already exist... skipping"
 else
-    time average -quiet dwi.mif -axis 3 - | threshold - - | median3D -quiet - - | median3D -quiet - brainmask.mif
+    time average -quiet dwi.mif -axis 3 - | threshold -quiet - - | median3D -quiet - - | median3D -quiet - brainmask.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
 
