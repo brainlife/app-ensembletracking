@@ -10,15 +10,17 @@ import json
 import os
 
 # get bvals file path
-bvals= os.environ['BVALS']
+#bvals= os.environ['BVALS']
 
-#with open('config.json') as config_json:
-#    config = json.load(config_json)
+with open('config.json') as config_json:
+    config = json.load(config_json)
 
+with open(config["dtiinit"]+'/dt6.json') as dt6_json:
+    dt6config = json.load(dt6_json)
 
 #get non0 bvals
 #f = open(config["bvals"], 'r')
-f = open(bvals, 'r')
+f = open(config["dtiinit"]+"/"+dt6config["files"]["alignedDwBvals"], 'r')
 line = f.readline().strip().replace(",", " ")
 bvals = line.split(" ")
 bvals_non0 = filter(lambda v: v != "0", bvals)
@@ -29,9 +31,5 @@ lmax=0
 while (lmax+3)*(lmax+4)/2 <= count:
        lmax+=2
 
-#print "lmax should be ", lmax, "for bvals:", count
 print lmax
 
-#outfile = open('lmax.txt', 'w')
-#outfile.write(str(lmax))
-#outfile.close()
