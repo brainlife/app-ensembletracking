@@ -18,7 +18,7 @@ end
 
 config = loadjson('config.json');
 dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json'));
-
+dt6config
 %bvecs = getenv('BVECS');
 %bvals = getenv('BVALS');
 %% Create an MRTRIX .b file from the bvals/bvecs of the shell chosen to run
