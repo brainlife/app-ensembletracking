@@ -218,7 +218,7 @@ fi
 
 echo "DONE tracking."
 
-rm *.mif
+#rm *.mif
 rm *.nii.gz
 
 echo "creating ensemble tractography"
