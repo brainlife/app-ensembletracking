@@ -31,7 +31,7 @@ if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else
 	echo "starting matlab to create grad.b & wm.nii.gz"
-	time matlab -nodisplay -nosplash -r main
+	./matlabcompiled/main
 fi
 
 echo "converting wm.nii.gz to wm.mif"
@@ -201,6 +201,5 @@ echo "DONE tracking."
 rm *.nii.gz
 
 echo "creating ensemble tractography"
-#matlab -nodisplay -nosplash -r ensemble_connectome_generator
-matlab -nodisplay -nosplash -r ensemble_tck_generator
+./matlabcompiled/ensemble_tck_generator
 

@@ -1,15 +1,16 @@
 function ensemble_tck_generator()
 
+% 
+% switch getenv('ENV')
+% case 'IUHPC'
+%         disp('loading paths (HPC)')
+%         addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
+% case 'VM'
+%         disp('loading paths (VM)')
+%   	addpath(genpath('/usr/local/vistasoft'))
+% end
 
-switch getenv('ENV')
-case 'IUHPC'
-        disp('loading paths (HPC)')
-        addpath(genpath('/N/u/hayashis/BigRed2/git/vistasoft'))
-case 'VM'
-        disp('loading paths (VM)')
-  	addpath(genpath('/usr/local/vistasoft'))
-end
-
+disp('combining tck files')
 % find all the .tck files
 ens = dir('*.tck');
 % pull all the file names
