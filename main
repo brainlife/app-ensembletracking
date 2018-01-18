@@ -5,49 +5,53 @@
 #PBS -o stdout.$PBS_JOBID.log
 #PBS -e stderr.$PBS_JOBID.log
 
-if [ -z $SERVICE_DIR ]; then export SERVICE_DIR=`pwd`; fi
+#if [ $ENV == "IUHPC" ]; then
+#    module load mrtrix/0.2.12
+#    module load freesurfer/6.0.0
+#    module load matlab
+#    module load python
+#fi
 
-[ "$PBS_O_WORKDIR" ] && cd $PBS_O_WORKDIR
+#if [ $ENV == "VM" ]; then
+#    export FREESURFER_HOME=/usr/local/freesurfer
+#    source $FREESURFER_HOME/SetUpFreeSurfer.sh
+#fi
 
-if [ $ENV == "IUHPC" ]; then
-    module load mrtrix/0.2.12
-    module load freesurfer/6.0.0
-    module load matlab
-    module load python
-fi
+which module && module load singularity
 
-if [ $ENV == "VM" ]; then
-    export FREESURFER_HOME=/usr/local/freesurfer
-    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-fi
+fsurfer=`jq -r '.freesurfer' config.json`
+
+#convert aparc+aseg.mgz to wm.nii.gz 
+singularty exec docker://brainlife/freesurfer mri_convert --out_orientation RAS $fsurfer/mri/apar+aseg.mgz wm.nii.gz
 
 BGRAD="grad.b"
 
-dtiinit=`$SERVICE_DIR/jq -r '.dtiinit' config.json`
-export input_nii_gz=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-export BVALS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-export BVECS=$dtiinit/`$SERVICE_DIR/jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+dtiinit=`jq -r '.dtiinit' config.json`
+export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+export BVALS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
+export BVECS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
-DOPROB=`$SERVICE_DIR/jq -r '.do_probabilistic' config.json`
-DOSTREAM=`$SERVICE_DIR/jq -r '.do_deterministic' config.json`
-DOTENSOR=`$SERVICE_DIR/jq -r '.do_tensor' config.json`
+DOPROB=`jq -r '.do_probabilistic' config.json`
+DOSTREAM=`jq -r '.do_deterministic' config.json`
+DOTENSOR=`jq -r '.do_tensor' config.json`
 
 #if max_lmax is empty, auto calculate
-MAXLMAX=`$SERVICE_DIR/jq -r '.max_lmax' config.json`
+MAXLMAX=`jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
 	echo "max_lmax is empty.. determining which lmax to use from .bvals"
-	MAXLMAX=`$SERVICE_DIR/calculatelmax.py`
+	MAXLMAX=`./calculatelmax.py`
 fi
 
-NUMFIBERS=`$SERVICE_DIR/calculatetracks.py $MAXLMAX`
+NUMFIBERS=`./calculatetracks.py $MAXLMAX`
 MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*2))
 
 echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
 echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
 
+
 #look for matlab script in service installation directory
-export MATLABPATH=$MATLABPATH:$SERVICE_DIR
+#export MATLABPATH=$MATLABPATH:$SERVICE_DIR
 
 if [ -f grad.b ] && [ -f wm.nii.gz ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
@@ -61,6 +65,7 @@ if [ -f wm.mif ]; then
     echo "wm.mif already exist... skipping"
 else
     time mrconvert --quiet wm.nii.gz wm.mif
+
     ret=$?
     if [ ! $ret -eq 0 ]; then
 	echo "failed to mrconver wm.nii.gz to wm.mif"

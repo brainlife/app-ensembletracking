@@ -13,11 +13,11 @@ invals  = [2 41 16 17 28 60 51 53 12 52 13 18 ...
 wmMaskFile = 'wm.nii.gz';
 
 % Find the FreeSurfer files
-fs_wm = fullfile(config.freesurfer, 'mri','aparc+aseg.mgz');
+%fs_wm = fullfile(config.freesurfer, 'mri','aparc+aseg.mgz');
 
-disp('working directory is');
-pwd
-eval(sprintf('!mri_convert  --out_orientation RAS %s %s', fs_wm, wmMaskFile));
+%disp('working directory is');
+%pwd
+%eval(sprintf('!mri_convert  --out_orientation RAS %s %s', fs_wm, wmMaskFile));
 wm       = niftiRead(wmMaskFile);
 wm.fname = 'wm.nii.gz';
 out      = wm.fname;
