@@ -27,7 +27,7 @@ singularity exec -e docker://brainlife/freesurfer /usr/local/freesurfer/bin/mri_
 
 #tracking 
 
-singularity exec -e docker://
+singularity exec -e docker://kitchell/ensembletracking
 
 if [ -s track.tck ]
 then
