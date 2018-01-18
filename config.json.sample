@@ -1,9 +1,0 @@
-{
-	"dtiinit": "/N/u/hayashis/Karst/testdata/108323/dtiinit/.",
-	"freesurfer": "/N/u/hayashis/Karst/testdata/108323/freesurfer/output",
-	"fibers": 600,
-	"do_probabilistic": false,
-	"do_deterministic": false,
-	"do_tensor": true
-}
-
