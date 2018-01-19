@@ -20,10 +20,11 @@ module load singularity 2> /dev/null
 fsurfer=`jq -r '.freesurfer' config.json`
 
 #convert aparc+aseg.mgz to wm.nii.gz 
-singularity exec -e docker://brainlife/freesurfer mri_convert --out_orientation RAS $fsurfer/mri/apar+aseg.mgz wm.nii.gz
+singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && mri_convert --out_orientation RAS $fsurfer/mri/apar+aseg.mgz wm.nii.gz"
+#singularity exec -e docker://brainlife/freesurfer mri_convert --out_orientation RAS $fsurfer/mri/apar+aseg.mgz wm.nii.gz
 
 #tracking 
-
+echo "tracking"
 singularity exec -e docker://kitchell/ensembletracking
 
 if [ -s track.tck ]
