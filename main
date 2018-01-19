@@ -15,7 +15,7 @@
 #    source $FREESURFER_HOME/SetUpFreeSurfer.sh
 #fi
 
-which module && module load singularity
+module load singularity 2> /dev/null
 
 fsurfer=`jq -r '.freesurfer' config.json`
 
