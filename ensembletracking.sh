@@ -73,7 +73,7 @@ echo "make brainmask from dwi data (about 18 minutes)"
 if [ -f brainmask.mif ]; then
     echo "brainmask.mif already exist... skipping"
 else
-    time average -quiet dwi.mif -axis 3 - | threshold -quiet - - | median3D -quiet - - | median3D -quiet - brainmask.mif
+    time /usr/lib/mrtrix/bin/average -quiet dwi.mif -axis 3 - | /usr/lib/mrtrix/bin/threshold -quiet - - | /usr/lib/mrtrix/bin/median3D -quiet - - | /usr/lib/mrtrix/bin/median3D -quiet - brainmask.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
 
