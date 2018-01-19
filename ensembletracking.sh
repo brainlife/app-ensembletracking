@@ -1,4 +1,7 @@
 #!/bin/bash
+
+export PATH=$PATH:/usr/lib/mrtrix/bin
+
 BGRAD="grad.b"
 
 dtiinit=`jq -r '.dtiinit' config.json`
