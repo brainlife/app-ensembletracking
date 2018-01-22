@@ -25,4 +25,25 @@ mri_binarize --i aparc+aseg_anat.nii.gz --o wm_anat.nii.gz --match 2 41 16 17 28
 #mri_binarize --i aparc+aseg_full.nii.gz --o cc_full.nii.gz --match 251 252 253 254 255
 mri_binarize --i aparc+aseg_anat.nii.gz --o cc_anat.nii.gz --match 251 252 253 254 255
 
+##
+## make extra visual wm areas for additional seeding / optic radiation
+##
+
+## thalami
+mri_binarize --i aparc+aseg_anat.nii.gz --o lh_thalamus.nii.gz --match 10 11
+mri_binarize --i aparc+aseg_anat.nii.gz --o rh_thalamus.nii.gz --match 49 50
+
+## occipital
+mri_binarize --i aparc+aseg_anat.nii.gz --o lh_occipital.nii.gz --match 1005 1011 1013 1021
+mri_binarize --i aparc+aseg_anat.nii.gz --o rh_occipital.nii.gz --match 2005 2011 2013 2021
+
+## occipital ++
+mri_binarize --i aparc+aseg_anat.nii.gz --o vis_wm.nii.gz --match 1005 1011 1013 1021 1008 1029 1031 1030 1015 1009 1007 1025 2005 2011 2013 2021 2008 2029 2031 2030 2015 2009 2007 2025
+
+## motor tract
+mri_binarize --i aparc+aseg_anat.nii.gz --o lh_motor.nii.gz --match 1022 1024
+mri_binarize --i aparc+aseg_anat.nii.gz --o rh_motor.nii.gz --match 2022 2024
+
+## brainstem
+mri_binarize --i aparc+aseg_anat.nii.gz --o br_stem.nii.gz --match 16
 
