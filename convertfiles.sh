@@ -1,6 +1,8 @@
 echo "Creating labeled freesurfer volumes..."
 
-
+fsurfer=`jq -r '.freesurfer' config.json`
+dtiinit=`jq -r '.dtiinit' config.json`
+export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
 
 
 ## aparc+aseg
