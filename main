@@ -17,9 +17,9 @@
 
 module load singularity 2> /dev/null
 
-fsurfer=`jq -r '.freesurfer' config.json`
-dtiinit=`jq -r '.dtiinit' config.json`
-export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+SINGULARITYENV_fsurfer=`jq -r '.freesurfer' config.json`
+SINGULARITYENV_dtiinit=`jq -r '.dtiinit' config.json`
+export SINGULARITYENV_input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
 
 #convert aparc+aseg.mgz to wm.nii.gz 
 singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
