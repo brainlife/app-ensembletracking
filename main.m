@@ -24,5 +24,5 @@ dt6config = loadjson(fullfile(config.dtiinit, '/dt6.json'));
 mrtrix_bfileFromBvecs(fullfile(config.dtiinit,dt6config.files.alignedDwBvecs), fullfile(config.dtiinit,dt6config.files.alignedDwBvals), 'grad.b');
 
 % load my own config.json
-make_wm_mask(config);
+%make_wm_mask(config);
 end
