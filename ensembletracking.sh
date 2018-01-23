@@ -86,7 +86,7 @@ else
     fi
 fi
 
-echo "done convverting"
+echo "done converting"
 
 ###################################################################################################
 
@@ -231,13 +231,13 @@ fi
 echo "DONE tracking."
 
 #rm *.mif
-rm *.nii.gz
+#rm *.nii.gz
 
 echo "creating ensemble tractography"
 ./matlabcompiled/ensemble_tck_generator
 
-rm grad.b
-rm response.txt
-rm csd*
-rm *tensor.tck
+#rm grad.b
+#rm response.txt
+#rm csd*
+#rm *tensor.tck
 
