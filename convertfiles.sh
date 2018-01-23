@@ -7,7 +7,7 @@ dtiinit=`jq -r '.dtiinit' config.json`
 
 export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
 
-SUBJECTS_DIR=$fsurfer
+##SUBJECTS_DIR=$fsurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 ## aparc+aseg
