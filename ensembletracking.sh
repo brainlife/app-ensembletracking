@@ -13,6 +13,9 @@ DOPROB=`jq -r '.do_probabilistic' config.json`
 DOSTREAM=`jq -r '.do_deterministic' config.json`
 DOTENSOR=`jq -r '.do_tensor' config.json`
 
+PROB_CURVS=`jq -r '.prob_curvs' config.json`
+DETR_CURVS=`jq -r '.detr_curvs' config.json`
+
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
@@ -173,7 +176,7 @@ if [ $DOPROB == "true" ] ; then
 	i_tracktype=SD_PROB
 	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $STREAM_CURVS; do
+		for i_curv in $DETR_CURVS; do
 			echo Tracking CSD-based Lmax=$i_lmax
 			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}.tck
 			ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
@@ -200,7 +203,7 @@ if [ $DOSTREAM == "true" ] ; then
 	i_tracktype=SD_STREAM
 	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $STREAM_CURVS; do
+		for i_curv in $PROB_CURVS; do
                         echo Tracking CSD-based Lmax=$i_lmax
                         outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}.tck
                         ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
