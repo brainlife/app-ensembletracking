@@ -1,7 +1,14 @@
+#!/bin/bash
+
 echo "Creating labeled freesurfer volumes..."
+
 fsurfer=`jq -r '.freesurfer' config.json`
 dtiinit=`jq -r '.dtiinit' config.json`
+
 export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+
+SUBJECTS_DIR=$fsurfer
+source $FREESURFER_HOME/SetUpFreeSurfer.sh
 
 ## aparc+aseg
 mri_label2vol --seg $fsurfer/mri/aparc+aseg.mgz --temp $fsurfer/mri/aparc+aseg.mgz --regheader $fsurfer/mri/aparc+aseg.mgz --o aparc+aseg_full.nii.gz
