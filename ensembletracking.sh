@@ -19,7 +19,7 @@ DETR_CURVS=`jq -r '.detr_curvs' config.json`
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
-	echo "max_lmax is empty.. determining which lmax to use from .bvals"
+	echo "max_lmax is empty... determining which lmax to use from .bvals"
 	MAXLMAX=`./calculatelmax.py`
 fi
 
@@ -35,11 +35,13 @@ NUMORFIBERS=`jq -r '.num_or_fibers' config.json`
 NUMMTFIBERS=`jq -r '.num_mt_fibers' config.json`
 NUMVZFIBERS=`jq -r '.num_vz_fibers' config.json`
 
+MAXNUMORFIBERS=$(($NUMORFIBERS*2))
+MAXNUMMTFIBERS=$(($NUMMTFIBERS*2))
+MAXNUMVZFIBERS=$(($NUMVZFIBERS*2))
 
 echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
 echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
-
 
 #look for matlab script in service installation directory
 #export MATLABPATH=$MATLABPATH:$SERVICE_DIR
@@ -68,8 +70,8 @@ mrconvert --quiet vis_wm.nii.gz vis_wm.mif
 mrconvert --quiet br_stem.nii.gz br_stem.mif
 
 ## create extra seed masks
-mradd lh_thalumus.mif lh_occipital.mif lh_or_seed.mif
-mradd rh_thalumus.mif rh_occipital.mif rh_or_seed.mif
+mradd lh_thalamus.mif lh_occipital.mif lh_or_seed.mif
+mradd rh_thalamus.mif rh_occipital.mif rh_or_seed.mif
 mradd lh_motor.mif br_stem.mif lh_motor_seed.mif
 mradd rh_motor.mif br_stem.mif rh_motor_seed.mif
 
@@ -175,11 +177,7 @@ fi
 if [ $DOPROB == "true" ] ; then
 
 	i_tracktype=SD_PROB
-
 	echo Tracking $i_tracktype
-	echo MAXLMAX: $MAXLMAX
-	echo PROB_CURVS: $PROB_CURVS
-	echo TRACK_TYPE: $i_tracktype
 
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 
@@ -187,36 +185,38 @@ if [ $DOPROB == "true" ] ; then
 
 			echo Tracking CSD-based Lmax=$i_lmax
 
-			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}.tck
+			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
 			ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
 			looutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_lo.tck
 			rooutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_ro.tck
 			lmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_lm.tck
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
-			
-			echo $outfile
-
+						
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
-
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed viz_wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMCCFIBERS
-
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -maxnum $MAXNUMORFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -maxnum $MAXNUMORFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed vis_wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+
 		done
 	done
 fi
 
 if [ $DOSTREAM == "true" ] ; then
+
 	i_tracktype=SD_STREAM
-	echo Tracking $i_tracktype #Deterministic=1 Probabilistic=2 CSD-based
+	echo Tracking $i_tracktype
+
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+
 		for i_curv in $DETR_CURVS; do
+
                         echo Tracking CSD-based Lmax=$i_lmax
-                        outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}.tck
+
+                        outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
                         ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
 			looutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_lo.tck
 			rooutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_ro.tck
@@ -225,14 +225,13 @@ if [ $DOSTREAM == "true" ] ; then
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
                         streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
-
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMCCFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed viz_wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMCCFIBERS
-
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -maxnum $MAXNUMORFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -maxnum $MAXNUMORFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed vis_wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
                         streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+
                 done
         done
 fi
