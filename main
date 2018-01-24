@@ -27,7 +27,7 @@ singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFE
 
 #tracking 
 echo "tracking"
-singularity exec -e docker://brainlife/ensembletracking /app/ensembletracking.sh
+singularity exec -e docker://brainlife/ensembletracking ./ensembletracking.sh
 
 if [ -s track.tck ]
 then
