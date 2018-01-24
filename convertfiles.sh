@@ -15,8 +15,8 @@ mri_label2vol --seg $fsurfer/mri/aparc+aseg.mgz --temp $fsurfer/mri/aparc+aseg.m
 mri_label2vol --seg $fsurfer/mri/aparc+aseg.mgz --temp $input_nii_gz --regheader $fsurfer/mri/aparc+aseg.mgz --o aparc+aseg_anat.nii.gz
 
 ## aparc+a2009s+aseg
-mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $fsurfer/mri/aparc.a2009s+aseg.mgz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_full.nii.gz
-mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $input_nii_gz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_anat.nii.gz
+#mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $fsurfer/mri/aparc.a2009s+aseg.mgz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_full.nii.gz
+#mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $input_nii_gz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_anat.nii.gz
 
 echo "Creating brain, white matter, and corpus callosum masks..."
 
