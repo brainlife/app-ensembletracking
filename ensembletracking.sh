@@ -35,9 +35,9 @@ NUMORFIBERS=`jq -r '.num_or_fibers' config.json`
 NUMMTFIBERS=`jq -r '.num_mt_fibers' config.json`
 NUMVZFIBERS=`jq -r '.num_vz_fibers' config.json`
 
-MAXNUMORFIBERS=$(($NUMORFIBERS*2))
-MAXNUMMTFIBERS=$(($NUMMTFIBERS*2))
-MAXNUMVZFIBERS=$(($NUMVZFIBERS*2))
+MAXNUMORFIBERS=$(($NUMORFIBERS*5))
+MAXNUMMTFIBERS=$(($NUMMTFIBERS*5))
+MAXNUMVZFIBERS=$(($NUMVZFIBERS*5))
 
 echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
@@ -248,6 +248,6 @@ echo "DONE tracking."
 echo "creating ensemble tractography"
 ./matlabcompiled/ensemble_tck_generator
 
-rm csd*.tck
-rm *tensor.tck
+#rm csd*.tck
+#rm *tensor.tck
 
