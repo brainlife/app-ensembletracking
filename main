@@ -3,38 +3,19 @@
 #PBS -N ensembletracking
 #PBS -V
 
-#if [ $ENV == "IUHPC" ]; then
-#    module load mrtrix/0.2.12
-#    module load freesurfer/6.0.0
-#    module load matlab
-#    module load python
-#fi
-
-#if [ $ENV == "VM" ]; then
-#    export FREESURFER_HOME=/usr/local/freesurfer
-#    source $FREESURFER_HOME/SetUpFreeSurfer.sh
-#fi
-
 module load singularity 2> /dev/null
 
-#fsurfer=`jq -r '.freesurfer' config.json`
-#dtiinit=`jq -r '.dtiinit' config.json`
-#export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+echo "converting aparc+aseg.mgz to wm.nii.gz"
+time singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
 
-#convert aparc+aseg.mgz to wm.nii.gz 
-singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
-#singularity exec -e docker://brainlife/freesurfer mri_convert --out_orientation RAS $fsurfer/mri/apar+aseg.mgz wm.nii.gz
-
-#tracking 
 echo "tracking"
-singularity exec -e docker://brainlife/ensembletracking ./ensembletracking.sh
+time singularity exec -e docker://brainlife/ensembletracking ./ensembletracking.sh
 
 if [ -s track.tck ]
 then
-	echo 0 > finished
+    exit 0
 else
 	echo "ensemble tracking missing"
-	echo 1 > finished
 	exit 1
 fi
 

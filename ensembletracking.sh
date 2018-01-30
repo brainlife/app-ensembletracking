@@ -43,9 +43,6 @@ echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
 echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
 
-#look for matlab script in service installation directory
-#export MATLABPATH=$MATLABPATH:$SERVICE_DIR
-
 if [ -f grad.b ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else

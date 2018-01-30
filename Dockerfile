@@ -6,7 +6,7 @@ RUN apt-get -y install sudo python jq
 RUN sudo apt-get update
 RUN sudo apt-get install -y mrtrix
 
-ADD . /app
+ADD mrtrix.conf /etc/mrtrix.conf
 
 WORKDIR /output
 
