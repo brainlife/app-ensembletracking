@@ -248,6 +248,6 @@ echo "DONE tracking."
 echo "creating ensemble tractography"
 ./matlabcompiled/ensemble_tck_generator
 
-#rm csd*.tck
-#rm *tensor.tck
+rm csd*.tck
+rm *tensor.tck
 
