@@ -43,9 +43,6 @@ echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
 echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
 
-#look for matlab script in service installation directory
-#export MATLABPATH=$MATLABPATH:$SERVICE_DIR
-
 if [ -f grad.b ]; then
 	echo "grad.b and wm.nii.gz exist... skipping"
 else
@@ -83,7 +80,6 @@ else
     time mrconvert --quiet $input_nii_gz dwi.mif
     ret=$?
     if [ ! $ret -eq 0 ]; then
-        echo $ret > finished
         exit $ret
     fi
 fi
@@ -100,7 +96,6 @@ echo "done converting"
 #    ret=$?
 #    if [ ! $ret -eq 0 ]; then
 
-#       echo $ret > finished
 #        exit $ret
 #    fi
 #fi
@@ -138,7 +133,6 @@ else
     time estimate_response -quiet dwi.mif cc.mif -grad $BGRAD response.txt
     ret=$?
     if [ ! $ret -eq 0 ]; then
-        echo $ret > finished
         exit $ret
     fi
 fi
@@ -154,7 +148,6 @@ for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		time csdeconv -quiet dwi.mif -grad $BGRAD response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
 		ret=$?
 		if [ ! $ret -eq 0 ]; then
-			echo $ret > finished
 			exit $ret
 		fi
 		

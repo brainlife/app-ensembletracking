@@ -6,13 +6,14 @@ RUN apt-get -y install sudo python jq
 RUN sudo apt-get update
 RUN sudo apt-get install -y mrtrix
 
-ADD . /app
+ADD mrtrix.conf /etc/mrtrix.conf
 
 WORKDIR /output
 
-RUN ldconfig
+#for singularity
+RUN ldconfig && mkdir -p /N/u /N/home /N/dc2 /N/soft
 
-ENTRYPOINT ["/app/ensembletracking.sh"]
+#ENTRYPOINT ["/app/ensembletracking.sh"]
  
 
 
