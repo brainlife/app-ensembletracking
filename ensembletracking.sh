@@ -35,9 +35,9 @@ NUMORFIBERS=`jq -r '.num_or_fibers' config.json`
 NUMMTFIBERS=`jq -r '.num_mt_fibers' config.json`
 NUMVZFIBERS=`jq -r '.num_vz_fibers' config.json`
 
-MAXNUMORFIBERS=$(($NUMORFIBERS*5))
-MAXNUMMTFIBERS=$(($NUMMTFIBERS*5))
-MAXNUMVZFIBERS=$(($NUMVZFIBERS*5))
+MAXNUMORFIBERS=$(($NUMORFIBERS*15))
+MAXNUMMTFIBERS=$(($NUMMTFIBERS*15))
+MAXNUMVZFIBERS=$(($NUMVZFIBERS*15))
 
 echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
