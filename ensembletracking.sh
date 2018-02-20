@@ -181,7 +181,7 @@ if [ $DOPROB == "true" ] ; then
 
 			echo Tracking CSD-based Lmax=$i_lmax
 
-			outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
+			wboutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
 			ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
 			looutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_lo.tck
 			rooutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_ro.tck
@@ -195,7 +195,7 @@ if [ $DOPROB == "true" ] ; then
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
 
 		done
 	done
@@ -212,7 +212,7 @@ if [ $DOSTREAM == "true" ] ; then
 
                         echo Tracking CSD-based Lmax=$i_lmax
 
-                        outfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
+                        wboutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_wb.tck
                         ccoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_cc.tck
 			looutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_lo.tck
 			rooutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_ro.tck
@@ -226,7 +226,7 @@ if [ $DOSTREAM == "true" ] ; then
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
-                        streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $outfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+                        streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
 
                 done
         done
