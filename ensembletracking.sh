@@ -236,14 +236,16 @@ fi
 
 echo "DONE tracking."
 
-#rm *.mif
-#rm *.nii.gz
-#rm grad.b
-#rm response.txt
-
 echo "creating ensemble tractography"
 ./matlabcompiled/ensemble_tck_generator
 
+## print out summary of track.tck
+track_info track.tck >> track_info.txt
+
+## clean up working directors
 rm csd*.tck
 rm *tensor.tck
-
+rm *.mif
+rm *.nii.gz
+rm grad.b
+rm response.txt
