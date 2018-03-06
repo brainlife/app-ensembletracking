@@ -226,7 +226,7 @@ if [ $DOPROB == "true" ] ; then
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
-			if [ $i_max -le 4 ]; then
+			if [ ${i_max} -le 4 ]; then
 			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
 			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
 			fi
@@ -261,7 +261,7 @@ if [ $DOSTREAM == "true" ] ; then
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
-			if [ $i_max -le 4 ]; then
+			if [ ${i_max} -le 4 ]; then
 			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
 			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
 			fi
