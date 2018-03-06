@@ -23,10 +23,6 @@ if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     MAXLMAX=`./calculatelmax.py`
 fi
 
-echo "Using MAXLMAX: $MAXLMAX"
-echo "Using NUMFIBERS per each track: $NUMFIBERS"
-echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
-
 #NUMFIBERS=`./calculatetracks.py $MAXLMAX`
 NUMFIBERS=`jq -r '.num_fibers' config.json`
 MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*50))
@@ -43,35 +39,42 @@ MAXNUMORFIBERS=$(($NUMORFIBERS*250000))
 MAXNUMMTFIBERS=$(($NUMMTFIBERS*250000))
 MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 
+echo "Using MAXLMAX: $MAXLMAX"
+echo "Using NUMFIBERS per each track: $NUMFIBERS"
+echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
+
 ##
 ## compute the number to return
 ##
 
 TOTAL=0
 
-## find max lmax
-MLMAX=1
+## find number of lmaxs
+NLMAX=1
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-    MLMAX=$(($MLMAX+1))
+    NLMAX=$(($NLMAX+1))
 done
 
 ## total streamlines per prob / detr
 NFIB=$(($NUMFIBERS+$NUMCCFIBERS+$NUMORFIBERS+$NUMMTFIBERS+$NUMVZFIBERS))
 TFIB=$(($NUMFIBERS+$NUMCCFIBERS))
 
-if [ $DOPROB == 'true']; then
-    NPC=`wc -w $PROB_CURVS`
-    PFIB=$(($NFIB*$MLMAX*$NPC))
+echo "Create $NFIB streamlines for every parameter combination."
+
+NPC=`echo $PROB_CURVS | wc -w`
+NSC=`echo $DETR_CURVS | wc -w`
+
+if [ $DOPROB == 'true' ]; then
+    PFIB=$(($NFIB*$NLMAX*$NPC))
     TOTAL=$(($TOTAL+$PFIB))
 fi
 
-if [ $DOSTREAM == 'true']; then
-    NSC=`wc -w $DETR_CURVS`
-    SFIB=$(($NFIB*$MLMAX*$NSC))
+if [ $DOSTREAM == 'true' ]; then
+    SFIB=$(($NFIB*$NLMAX*$NSC))
     TOTAL=$(($TOTAL+$SFIB))
 fi
 
-if [ $DOTENSOR == 'true']; then
+if [ $DOTENSOR == 'true' ]; then
     TOTAL=$(($TOTAL+$TFIB))
 fi
 
@@ -287,8 +290,9 @@ track_info track.tck >> track_info.txt
 ## hard check before passing back failure
 
 COUNT=`track_info track.tck | grep -w 'count' | awk '{print $2}'`
-if [ $COUNT -lt $TOTAL ]; then
+if [ $COUNT -ne $TOTAL ]; then
     echo Insufficient count. Tractography failed.
+    rm track.tck
     return 1
 fi
 
