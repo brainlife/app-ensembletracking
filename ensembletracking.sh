@@ -23,25 +23,59 @@ if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     MAXLMAX=`./calculatelmax.py`
 fi
 
+echo "Using MAXLMAX: $MAXLMAX"
+echo "Using NUMFIBERS per each track: $NUMFIBERS"
+echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
+
 #NUMFIBERS=`./calculatetracks.py $MAXLMAX`
 NUMFIBERS=`jq -r '.num_fibers' config.json`
-MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*5))
+MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*50))
 
 #NUMCCFIBERS=$(($NUMWMFIBERS/5))
 NUMCCFIBERS=`jq -r '.num_cc_fibers' config.json`
-MAXNUMCCFIBERS=$(($NUMCCFIBERS*5))
+MAXNUMCCFIBERS=$(($NUMCCFIBERS*50))
 
 NUMORFIBERS=`jq -r '.num_or_fibers' config.json`
 NUMMTFIBERS=`jq -r '.num_mt_fibers' config.json`
 NUMVZFIBERS=`jq -r '.num_vz_fibers' config.json`
 
-MAXNUMORFIBERS=$(($NUMORFIBERS*15000))
-MAXNUMMTFIBERS=$(($NUMMTFIBERS*15000))
-MAXNUMVZFIBERS=$(($NUMVZFIBERS*15000))
+MAXNUMORFIBERS=$(($NUMORFIBERS*250000))
+MAXNUMMTFIBERS=$(($NUMMTFIBERS*250000))
+MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 
-echo "Using MAXLMAX: $MAXLMAX"
-echo "Using NUMFIBERS per each track: $NUMFIBERS"
-echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
+##
+## compute the number to return
+##
+
+TOTAL=0
+
+## find max lmax
+MLMAX=1
+for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+    MLMAX=$(($MLMAX+1))
+done
+
+## total streamlines per prob / detr
+NFIB=$(($NUMFIBERS+$NUMCCFIBERS+$NUMORFIBERS+$NUMMTFIBERS+$NUMVZFIBERS))
+TFIB=$(($NUMFIBERS+$NUMCCFIBERS))
+
+if [ $DOPROB == 'true']; then
+    NPC=`wc -w $PROB_CURVS`
+    PFIB=$(($NFIB*$MLMAX*$NPC))
+    TOTAL=$(($TOTAL+$PFIB))
+fi
+
+if [ $DOSTREAM == 'true']; then
+    NSC=`wc -w $DETR_CURVS`
+    SFIB=$(($NFIB*$MLMAX*$NSC))
+    TOTAL=$(($TOTAL+$SFIB))
+fi
+
+if [ $DOTENSOR == 'true']; then
+    TOTAL=$(($TOTAL+$TFIB))
+fi
+
+echo "Expecting $TOTAL streamlines in ensemble."
 
 if [ -f grad.b ]; then
     echo "grad.b and wm.nii.gz exist... skipping"
@@ -249,6 +283,14 @@ echo "creating ensemble tractography"
 
 ## print out summary of track.tck
 track_info track.tck >> track_info.txt
+
+## hard check before passing back failure
+
+COUNT=`track_info track.tck | grep -w 'count' | awk '{print $2}'`
+if [ $COUNT -lt $TOTAL ]; then
+    echo Insufficient count. Tractography failed.
+    return 1
+fi
 
 ## clean up working directors
 rm csd*.tck
