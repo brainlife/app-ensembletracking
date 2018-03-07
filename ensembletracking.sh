@@ -23,11 +23,9 @@ if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     MAXLMAX=`./calculatelmax.py`
 fi
 
-#NUMFIBERS=`./calculatetracks.py $MAXLMAX`
 NUMFIBERS=`jq -r '.num_fibers' config.json`
 MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*50))
 
-#NUMCCFIBERS=$(($NUMWMFIBERS/5))
 NUMCCFIBERS=`jq -r '.num_cc_fibers' config.json`
 MAXNUMCCFIBERS=$(($NUMCCFIBERS*50))
 
@@ -41,44 +39,38 @@ MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 
 echo "Using MAXLMAX: $MAXLMAX"
 echo "Using NUMFIBERS per each track: $NUMFIBERS"
-echo "Using MAXNUMBERFIBERSATTEMPTED $MAXNUMFIBERSATTEMPTED"
+echo "Using MAXNUMBERFIBERSATTEMPTED: $MAXNUMFIBERSATTEMPTED"
 
-##
-## compute the number to return
-##
-
+## precompute the expected output count by stepping through the tracking logic
 TOTAL=0
 
-## find number of lmaxs
-NLMAX=1
-for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-    NLMAX=$(($NLMAX+1))
-done
-
-## total streamlines per prob / detr
-NFIB=$(($NUMFIBERS+$NUMCCFIBERS+$NUMORFIBERS+$NUMMTFIBERS+$NUMVZFIBERS))
-TFIB=$(($NUMFIBERS+$NUMCCFIBERS))
-
-echo "Create $NFIB streamlines for every parameter combination."
-
-NPC=`echo $PROB_CURVS | wc -w`
-NSC=`echo $DETR_CURVS | wc -w`
-
-if [ $DOPROB == 'true' ]; then
-    PFIB=$(($NFIB*$NLMAX*$NPC))
-    TOTAL=$(($TOTAL+$PFIB))
+if [ $DOTENSOR == "true" ]; then
+    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS+$NUMCCFIBERS+$NUMFIBERS))
 fi
 
-if [ $DOSTREAM == 'true' ]; then
-    SFIB=$(($NFIB*$NLMAX*$NSC))
-    TOTAL=$(($TOTAL+$SFIB))
+if [ $DOPROB == "true" ] ; then
+	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+		for i_curv in $PROB_CURVS; do
+			if [ ${i_lmax} -le 2 ]; then
+			    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
+			fi
+			TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
+		done
+	done
 fi
 
-if [ $DOTENSOR == 'true' ]; then
-    TOTAL=$(($TOTAL+$TFIB))
+if [ $DOSTREAM == "true" ] ; then
+	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+		for i_curv in $DETR_CURVS; do
+			if [ ${i_lmax} -le 2 ]; then
+			    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
+			fi
+			TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
+		done
+	done
 fi
 
-echo "Expecting $TOTAL streamlines in ensemble."
+echo "Expecting $TOTAL streamlines in final ensemble."
 
 if [ -f grad.b ]; then
     echo "grad.b and wm.nii.gz exist... skipping"
@@ -107,10 +99,10 @@ mrconvert --quiet wm_vis.nii.gz wm_vis.mif
 mrconvert --quiet wm_fh.nii.gz wm_fh.mif
 
 ## create extra seed masks
-mradd lh_thalamus.mif lh_occipital.mif lh_or_seed.mif
-mradd rh_thalamus.mif rh_occipital.mif rh_or_seed.mif
-mradd lh_motor.mif br_stem.mif lh_motor_seed.mif
-mradd rh_motor.mif br_stem.mif rh_motor_seed.mif
+mradd -quiet lh_thalamus.mif lh_occipital.mif lh_or_seed.mif
+mradd -quiet rh_thalamus.mif rh_occipital.mif rh_or_seed.mif
+mradd -quiet lh_motor.mif br_stem.mif lh_motor_seed.mif
+mradd -quiet rh_motor.mif br_stem.mif rh_motor_seed.mif
 
 echo "converting $input_nii_gz to dwi.mif"
 alias
@@ -202,8 +194,12 @@ echo "DONE performing preprocessing of data before starting tracking..."
 
 if [ $DOTENSOR == "true" ] ; then
 	echo "tensor tracking"
-	streamtrack -quiet DT_STREAM dwi.mif cc_tensor.tck -seed cc.mif -mask tm.mif -grad $BGRAD -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
-	streamtrack -quiet DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask tm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+
+	streamtrack DT_STREAM dwi.mif lo_tensor.tck -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif
+	streamtrack DT_STREAM dwi.mif ro_tensor.tck -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif
+
+	streamtrack DT_STREAM dwi.mif cc_tensor.tck -seed cc.mif -mask tm.mif -grad $BGRAD -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
+	streamtrack DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask tm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
 
 fi
 
@@ -226,17 +222,17 @@ if [ $DOPROB == "true" ] ; then
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
-			if [ ${i_max} -le 4 ]; then
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
+			if [ ${i_lmax} -le 2 ]; then
+			    streamtrack  $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+			    streamtrack  $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+
 			fi
 						
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
-			
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
 
 		done
 	done
@@ -261,17 +257,19 @@ if [ $DOSTREAM == "true" ] ; then
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
-			if [ ${i_max} -le 4 ]; then
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif  -maxnum $MAXNUMORFIBERS
+			if [ ${i_lmax} -le 2 ]; then
+			    streamtrack  $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+			    streamtrack  $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+
+
 			fi
 						
-                        streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
-			
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
-			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
-                        streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+                        streamtrack  $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
+			streamtrack  $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
+                        streamtrack  $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
+
 
                 done
         done
@@ -285,21 +283,22 @@ echo "creating ensemble tractography"
 ./matlabcompiled/ensemble_tck_generator
 
 ## print out summary of track.tck
-track_info track.tck >> track_info.txt
+track_info track.tck > track_info.txt
 
-## hard check before passing back failure
-
+## hard check of count
 COUNT=`track_info track.tck | grep -w 'count' | awk '{print $2}'`
+echo "Ensemble tractography generated $COUNT of a requested $TOTAL"
 if [ $COUNT -ne $TOTAL ]; then
-    echo Insufficient count. Tractography failed.
+    echo "Incorrect count. Tractography failed."
     rm track.tck
-    return 1
+else
+    echo "Correct count. Tractography complete."
 fi
 
 ## clean up working directors
 rm csd*.tck
 rm *tensor.tck
-rm *.mif
+# rm *.mif
 rm *.nii.gz
-rm grad.b
-rm response.txt
+# rm grad.b
+# rm response.txt
