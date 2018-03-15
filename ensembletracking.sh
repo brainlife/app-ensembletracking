@@ -293,7 +293,7 @@ if [ $COUNT -ne $TOTAL ]; then
     rm track.tck
 else
     echo "Correct count. Tractography complete."
-    rm *.mif
+    #rm *.mif
     rm grad.b
     rm response.txt
 fi
@@ -301,4 +301,4 @@ fi
 ## clean up working directors
 rm csd*.tck
 rm *tensor.tck
-rm *.nii.gz
+#rm *.nii.gz
