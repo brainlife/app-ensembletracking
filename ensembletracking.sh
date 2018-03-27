@@ -45,7 +45,7 @@ echo "Using MAXNUMBERFIBERSATTEMPTED: $MAXNUMFIBERSATTEMPTED"
 TOTAL=0
 
 if [ $DOTENSOR == "true" ]; then
-    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS+$NUMCCFIBERS+$NUMFIBERS))
+    TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMFIBERS))
 fi
 
 if [ $DOPROB == "true" ] ; then
@@ -195,8 +195,8 @@ echo "DONE performing preprocessing of data before starting tracking..."
 if [ $DOTENSOR == "true" ] ; then
 	echo "tensor tracking"
 
-	streamtrack -quiet DT_STREAM dwi.mif lo_tensor.tck -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif
-	streamtrack -quiet DT_STREAM dwi.mif ro_tensor.tck -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif
+	#streamtrack -quiet DT_STREAM dwi.mif lo_tensor.tck -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif
+	#streamtrack -quiet DT_STREAM dwi.mif ro_tensor.tck -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -number $NUMORFIBERS -maxnum $MAXNUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif
 
 	streamtrack -quiet DT_STREAM dwi.mif cc_tensor.tck -seed cc.mif -mask tm.mif -grad $BGRAD -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
 	streamtrack -quiet DT_STREAM dwi.mif wm_tensor.tck -seed wm.mif -mask tm.mif -grad $BGRAD -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
