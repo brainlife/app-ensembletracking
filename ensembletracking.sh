@@ -62,9 +62,9 @@ fi
 if [ $DOSTREAM == "true" ] ; then
 	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
 		for i_curv in $DETR_CURVS; do
-			if [ ${i_lmax} -le 2 ]; then
-			    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
-			fi
+			# if [ ${i_lmax} -le 2 ]; then
+			#     TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
+			# fi
 			TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
 		done
 	done
@@ -139,7 +139,7 @@ if [ $DOTENSOR == "true" ]; then
 	if [ -f dt.mif ]; then
     		echo "dt.mif already exist... skipping"
 	else
-	    time dwi2tensor dwi.mif -grad $BGRAD dt.mif 
+	    time dwi2tensor -quiet dwi.mif -grad $BGRAD dt.mif 
 	fi
 fi
 
@@ -257,19 +257,16 @@ if [ $DOSTREAM == "true" ] ; then
 			rmoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_rm.tck
 			vzoutfile=csd_lmax${i_lmax}_wm_${i_tracktype}_curv${i_curv}_vz.tck
 
-			if [ ${i_lmax} -le 2 ]; then
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
-			    streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
-
-
-			fi
+			# if [ ${i_lmax} -le 2 ]; then
+			#     streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $looutfile -seed lh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include lh_thalamus.mif -include lh_occipital.mif -exclude wm_fh.mif -exclude wm_rh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+			#     streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rooutfile -seed rh_or_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMORFIBERS -include rh_thalamus.mif -include rh_occipital.mif -exclude wm_fh.mif -exclude wm_lh.mif -exclude br_stem.mif -maxnum $MAXNUMORFIBERS
+			# fi
 						
                         streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $ccoutfile -seed cc.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMCCFIBERS -maxnum $MAXNUMCCFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $lmoutfile -seed lh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include lh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $rmoutfile -seed rh_motor_seed.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMMTFIBERS -include rh_motor.mif -include br_stem.mif -maxnum $MAXNUMMTFIBERS
 			streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $vzoutfile -seed wm_vis.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMVZFIBERS -maxnum $MAXNUMVZFIBERS
                         streamtrack -quiet $i_tracktype lmax${i_lmax}.mif $wboutfile -seed wm.mif -mask tm.mif -grad $BGRAD -curvature ${i_curv} -number $NUMFIBERS -maxnum $MAXNUMFIBERSATTEMPTED
-
 
                 done
         done
@@ -294,8 +291,8 @@ if [ $COUNT -ne $TOTAL ]; then
 else
     echo "Correct count. Tractography complete."
     #rm *.mif
-    rm grad.b
-    rm response.txt
+    #rm grad.b
+    #rm response.txt
 fi
 
 ## clean up working directors
