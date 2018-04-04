@@ -285,6 +285,10 @@ track_info track.tck > track_info.txt
 ## hard check of count
 COUNT=`track_info track.tck | grep -w 'count' | awk '{print $2}'`
 echo "Ensemble tractography generated $COUNT of a requested $TOTAL"
+
+## adding product.json /w streamline count
+echo "{\"count\": $COUNT}" > product.json
+
 if [ $COUNT -ne $TOTAL ]; then
     echo "Incorrect count. Tractography failed."
     rm track.tck
