@@ -8,6 +8,9 @@ module load singularity 2> /dev/null
 echo "converting aparc+aseg.mgz to wm.nii.gz"
 time singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
 
+echo "creating exclude ROI with FSL"
+time singularity exec -e docker://brainlife/fsl:5.0.9 bash -c "./make_fsl_roi.sh"
+
 echo "tracking"
 time singularity exec -e docker://brainlife/mrtrix_on_mcr:1.0 ./ensembletracking.sh
 
