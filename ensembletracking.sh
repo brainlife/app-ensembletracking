@@ -272,18 +272,17 @@ if [ $DOSTREAM == "true" ] ; then
         done
 fi
 
-############# PROPOSED ENSEMBLING CHANGE #############
-## holder=(*.tck*)
-## cat_tracks track.tck ${holder[*]}
-######################################################
+## Ensemble tck's
+holder=(*.tck*)
+cat_tracks track.tck ${holder[*]}
 
 
 ###################################################################################################
 
 echo "DONE tracking."
 
-echo "creating ensemble tractography"
-./matlabcompiled/ensemble_tck_generator
+#echo "creating ensemble tractography"
+#./matlabcompiled/ensemble_tck_generator
 
 ## print out summary of track.tck
 track_info track.tck > track_info.txt
