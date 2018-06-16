@@ -3,15 +3,11 @@
 #make the script to fail if any of the command fails.
 set -e
 
-#echo commands executed
+#DEBUG - echo commands executed (to stderr)
 set -x
+cat config.json
 
 export PATH=$PATH:/usr/lib/mrtrix/bin
-
-dtiinit=`jq -r '.dtiinit' config.json`
-export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-export BVALS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-export BVECS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
 DOPROB=`jq -r '.do_probabilistic' config.json`
 DOSTREAM=`jq -r '.do_deterministic' config.json`
@@ -20,22 +16,27 @@ DOTENSOR=`jq -r '.do_tensor' config.json`
 PROB_CURVS=`jq -r '.prob_curvs' config.json`
 DETR_CURVS=`jq -r '.detr_curvs' config.json`
 
-NUMFIBERS=`jq -r '.num_fibers' config.json`
-MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*50))
-
 STEPSIZE=`jq -r '.stepsize' config.json`
 MINLENGTH=`jq -r '.minlength' config.json`
 MAXLENGTH=`jq -r '.maxlength' config.json`
 
+NUMFIBERS=`jq -r '.num_fibers' config.json`
 NUMCCFIBERS=`jq -r '.num_cc_fibers' config.json`
 NUMORFIBERS=`jq -r '.num_or_fibers' config.json`
 NUMMTFIBERS=`jq -r '.num_mt_fibers' config.json`
 NUMVZFIBERS=`jq -r '.num_vz_fibers' config.json`
 
+MAXNUMFIBERSATTEMPTED=$(($NUMFIBERS*50))
+MAXNUMCCFIBERS=$(($NUMCCFIBERS*50))
 MAXNUMORFIBERS=$(($NUMORFIBERS*250000))
 MAXNUMMTFIBERS=$(($NUMMTFIBERS*250000))
 MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
-MAXNUMCCFIBERS=$(($NUMCCFIBERS*50))
+
+#pull dtiinit aligned dwi paths
+dtiinit=`jq -r '.dtiinit' config.json`
+export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+export BVALS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
+export BVECS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
@@ -45,8 +46,8 @@ if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     echo "Using MAXLMAX: $MAXLMAX"
 fi
 
-echo "Using NUMFIBERS per each track: $NUMFIBERS"
-echo "Using MAXNUMBERFIBERSATTEMPTED: $MAXNUMFIBERSATTEMPTED"
+#echo "Using NUMFIBERS per each track: $NUMFIBERS"
+#echo "Using MAXNUMBERFIBERSATTEMPTED: $MAXNUMFIBERSATTEMPTED"
 
 ###################################################################################################
 #

@@ -6,6 +6,12 @@
 #make the script to fail if any of the commands ran fails.
 set -e
 
+#validate some input parameters
+if [ $(jq -r '.num_or_fibers' config.json) -gt 25 ]; then
+    echo "num_or_fibers should be less than 25"
+    exit 1
+fi
+
 if [ ! -f convertfiles.success ]; then
     echo "converting aparc+aseg.mgz"
     time singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
