@@ -1,25 +1,22 @@
 #!/bin/bash
-#PBS -l nodes=1:ppn=8,walltime=14:00:00
+#PBS -l nodes=1:ppn=8,walltime=15:00:00
 #PBS -N ensembletracking
 #PBS -V
 
 #make the script to fail if any of the commands ran fails.
 set -e
 
-echo "converting aparc+aseg.mgz to wm.nii.gz"
-time singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
-
-echo "creating exclude ROI with FSL"
-time singularity exec -e docker://brainlife/fsl:5.0.9 bash -c "./make_fsl_roi.sh"
-
-echo "tracking"
-time singularity exec -e docker://brainlife/mrtrix_on_mcr:1.0 ./ensembletracking.sh
-
-if [ -s track.tck ]
-then
-    exit 0
-else
-	echo "ensemble tracking missing"
-	exit 1
+if [ ! -f convertfiles.success ]; then
+    echo "converting aparc+aseg.mgz"
+    time singularity exec -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
 fi
 
+if [ ! -f wmmask.success ]; then
+    echo "creating exclude ROI with FSL"
+    time singularity exec -e docker://brainlife/fsl:5.0.9 ./make_fsl_roi.sh
+fi
+
+if [ ! -f track.tck ]; then
+    echo "running ensembetracking"
+    time singularity exec -e docker://brainlife/mrtrix_on_mcr:1.0 ./ensembletracking.sh
+fi

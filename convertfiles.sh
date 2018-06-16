@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#make this script to fail if any of the command fails
+set -e
+
 echo "Creating labeled freesurfer volumes..."
 
 fsurfer=`jq -r '.freesurfer' config.json`
@@ -14,14 +17,9 @@ source $FREESURFER_HOME/SetUpFreeSurfer.sh
 mri_label2vol --seg $fsurfer/mri/aparc+aseg.mgz --temp $fsurfer/mri/aparc+aseg.mgz --regheader $fsurfer/mri/aparc+aseg.mgz --o aparc+aseg_full.nii.gz
 mri_label2vol --seg $fsurfer/mri/aparc+aseg.mgz --temp $input_nii_gz --regheader $fsurfer/mri/aparc+aseg.mgz --o aparc+aseg_anat.nii.gz
 
-## aparc+a2009s+aseg
-#mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $fsurfer/mri/aparc.a2009s+aseg.mgz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_full.nii.gz
-#mri_label2vol --seg $fsurfer/mri/aparc.a2009s+aseg.mgz --temp $input_nii_gz --regheader $fsurfer/mri/aparc.a2009s+aseg.mgz --o aparc.a2009s+aseg_anat.nii.gz
-
 echo "Creating brain, white matter, and corpus callosum masks..."
 
 ## create brain masks
-#mri_binarize --i aparc+aseg_full.nii.gz --min 1 --o mask_full.nii.gz 
 mri_binarize --i aparc+aseg_anat.nii.gz --min 1 --o mask_anat.nii.gz 
 
 ## create white matter masks
@@ -57,4 +55,7 @@ mri_binarize --i aparc+aseg_anat.nii.gz --o rh_motor.nii.gz --match 2022 2024
 
 ## brainstem
 mri_binarize --i aparc+aseg_anat.nii.gz --o br_stem.nii.gz --match 16
+
+echo "finished converting all filed"
+touch convertfiles.success
 
