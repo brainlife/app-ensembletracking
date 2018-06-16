@@ -3,6 +3,9 @@
 #make the script to fail if any of the command fails.
 set -e
 
+#echo commands executed
+set -x
+
 export PATH=$PATH:/usr/lib/mrtrix/bin
 
 dtiinit=`jq -r '.dtiinit' config.json`
@@ -55,22 +58,22 @@ if [ $DOTENSOR == "true" ]; then
 fi
 
 if [ $DOPROB == "true" ] ; then
-	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $PROB_CURVS; do
-			if [ ${i_lmax} -le 2 ]; then
-			    TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
-			fi
-			TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
-		done
-	done
+    for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+        for i_curv in $PROB_CURVS; do
+            if [ ${i_lmax} -le 2 ]; then
+                TOTAL=$(($TOTAL+$NUMORFIBERS+$NUMORFIBERS))
+            fi
+            TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
+        done
+    done
 fi
 
 if [ $DOSTREAM == "true" ] ; then
-	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $DETR_CURVS; do
-			TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
-		done
-	done
+    for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+        for i_curv in $DETR_CURVS; do
+            TOTAL=$(($TOTAL+$NUMCCFIBERS+$NUMMTFIBERS+$NUMMTFIBERS+$NUMVZFIBERS+$NUMFIBERS))
+        done
+    done
 fi
 echo "Expecting $TOTAL streamlines in final ensemble."
 #
@@ -128,11 +131,11 @@ if [ ! -f response.txt ]; then
 fi
 
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-	lmaxout=lmax${i_lmax}.mif
-	if [ ! -f $lmaxout ]; then
-		echo "csdeconv $lmaxout"
-		time csdeconv -quiet dwi.mif -grad grad.b response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
-	fi
+    lmaxout=lmax${i_lmax}.mif
+    if [ ! -f $lmaxout ]; then
+        echo "csdeconv $lmaxout"
+        time csdeconv -quiet dwi.mif -grad grad.b response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
+    fi
 done 
 
 ###################################################################################################
@@ -141,7 +144,7 @@ done
 #
 
 if [ $DOTENSOR == "true" ]; then
-    if [ ! -f cc_tensor.tck ]; then
+    if [ ! -f cc_tensor.tck ] && [ $NUMCCFIBERS -gt 0 ]; then
         echo "streamtrack DT_STREAM cc_tensor.tck - number:$NUMCCFIBERS"
         time streamtrack -quiet DT_STREAM dwi.mif cc_tensor.tck \
             -seed cc.mif \
@@ -154,7 +157,7 @@ if [ $DOTENSOR == "true" ]; then
             -length $MAXLENGTH
     fi
 
-    if [ ! -f wm_tensor.tck ]; then
+    if [ ! -f wm_tensor.tck ] && [ $NUMFIBERS -gt 0 ]; then
         echo "streamtrack DT_STREAM wm_tensor.tck - number:$NUMFIBERS"
         time streamtrack -quiet DT_STREAM dwi.mif wm_tensor.tck \
             -seed wm.mif \
@@ -174,15 +177,15 @@ fi
 #
 
 if [ $DOPROB == "true" ]; then
-	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $PROB_CURVS; do
+    for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+        for i_curv in $PROB_CURVS; do
 
-			prefix=csd_lmax${i_lmax}_wm_SD_PROB_curv${i_curv}
+            prefix=csd_lmax${i_lmax}_wm_SD_PROB_curv${i_curv}
 
             out=${prefix}_lo.tck
-			if [ ${i_lmax} -le 2 ] && [ ! -f $out ]; then
+            if [ $i_lmax -le 2 ] && [ ! -f $out ] && [ $NUMORFIBERS -gt 0 ]; then
                 echo "streamtrack SD_PROB $out - number:$NUMORFIBERS"
-			    time streamtrack SD_PROB lmax${i_lmax}.mif $out \
+                time streamtrack SD_PROB lmax${i_lmax}.mif $out \
                     -seed lh_or_seed.mif \
                     -mask tm.mif \
                     -grad grad.b \
@@ -200,9 +203,9 @@ if [ $DOPROB == "true" ]; then
             fi
 
             out=${prefix}_ro.tck
-			if [ ${i_lmax} -le 2 ] && [ ! -f $out ]; then
+            if [ ${i_lmax} -le 2 ] && [ ! -f $out ] && [ $NUMORFIBERS -gt 0 ] ; then
                 echo "streamtrack SD_PROB $out - number:$NUMORFIBERS"
-			    time streamtrack SD_PROB lmax${i_lmax}.mif $out \
+                time streamtrack SD_PROB lmax${i_lmax}.mif $out \
                     -seed rh_or_seed.mif \
                     -mask tm.mif \
                     -grad grad.b \
@@ -217,10 +220,10 @@ if [ $DOPROB == "true" ]; then
                     -exclude wm_fh.mif \
                     -exclude wm_lh.mif \
                     -exclude br_stem.mif
-			fi
-						
+            fi
+                        
             out=${prefix}_cc.tck
-			if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMCCFIBERS -gt 0 ]; then
                 echo "streamtrack SD_PROB $out - number:$NUMCCFIBERS"
                 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
                     -seed cc.mif \
@@ -235,7 +238,7 @@ if [ $DOPROB == "true" ]; then
             fi
 
             out=${prefix}_lm.tck
-			if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
                 echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
                 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
                     -seed lh_motor_seed.mif \
@@ -252,7 +255,7 @@ if [ $DOPROB == "true" ]; then
             fi
 
             out=${prefix}_rm.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
                 echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
                 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
                     -seed rh_motor_seed.mif \
@@ -269,9 +272,9 @@ if [ $DOPROB == "true" ]; then
             fi
 
             out=${prefix}_vz.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMVZFIBERS -gt 0 ] ; then
                 echo "streamtrack SD_PROB $out - number:$NUMVZFIBERS"
-			    time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
+                time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
                     -seed wm_vis.mif \
                     -mask tm.mif \
                     -grad grad.b \
@@ -284,9 +287,9 @@ if [ $DOPROB == "true" ]; then
             fi
 
             out=${prefix}_wb.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMFIBERS -gt 0 ]; then
                 echo "streamtrack SD_PROB $out - number:$NUMFIBERS"
-			    time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
+                time streamtrack -quiet SD_PROB lmax${i_lmax}.mif $out \
                     -seed wm.mif \
                     -mask tm.mif \
                     -grad grad.b \
@@ -298,8 +301,8 @@ if [ $DOPROB == "true" ]; then
                     -length $MAXLENGTH
             fi
 
-		done
-	done
+        done
+    done
 fi
 
 ###################################################################################################
@@ -308,19 +311,19 @@ fi
 #
 
 if [ $DOSTREAM == "true" ] ; then
-	for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
-		for i_curv in $DETR_CURVS; do
+    for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
+        for i_curv in $DETR_CURVS; do
 
-			prefix=csd_lmax${i_lmax}_wm_SD_STREAM_curv${i_curv}
+            prefix=csd_lmax${i_lmax}_wm_SD_STREAM_curv${i_curv}
 
             out=${prefix}_cc.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMCCFIBERS -gt 0 ]; then
                 echo "streamtrack SD_STREAM $out - number:$NUMCCFIBERS"
                 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif $out \
                     -seed cc.mif \
                     -mask tm.mif \
                     -grad grad.b \
-                    -curvature ${i_curv} \
+                    -curvature $i_curv \
                     -number $NUMCCFIBERS \
                     -maxnum $MAXNUMCCFIBERS \
                     -step $STEPSIZE \
@@ -329,7 +332,7 @@ if [ $DOSTREAM == "true" ] ; then
             fi
 
             out=${prefix}_lm.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
                 echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
                 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif $out \
                     -seed lh_motor_seed.mif \
@@ -346,7 +349,7 @@ if [ $DOSTREAM == "true" ] ; then
             fi
 
             out=${prefix}_rm.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
                 echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
                 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif $out \
                     -seed rh_motor_seed.mif \
@@ -363,7 +366,7 @@ if [ $DOSTREAM == "true" ] ; then
             fi
 
             out=${prefix}_vz.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMVZFIBERS -gt 0 ]; then
                 echo "streamtrack SD_STREAM $out - number:$NUMVZFIBERS"
                 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif $out \
                     -seed wm_vis.mif \
@@ -378,7 +381,7 @@ if [ $DOSTREAM == "true" ] ; then
             fi
 
             out=${prefix}_wb.tck
-            if [ ! -f $out ]; then
+            if [ ! -f $out ] && [ $NUMFIBERS -gt 0 ]; then
                 echo "streamtrack SD_STREAM $out - number:$NUMFIBERS"
                 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif $out \
                     -seed wm.mif \
