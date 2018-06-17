@@ -35,8 +35,8 @@ MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 #pull dtiinit aligned dwi paths
 dtiinit=`jq -r '.dtiinit' config.json`
 export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-export BVALS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-export BVECS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+export BVECS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
+export BVALS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
@@ -81,10 +81,31 @@ echo "Expecting $TOTAL streamlines in final ensemble."
 #
 ###################################################################################################
 
-if [ ! -f grad.b ]; then
-    echo "creating grad.b & wm.nii.gz"
-    ./compiled/main
-fi
+#if [ ! -f grad.b ]; then
+#    echo "creating grad.b & wm.nii.gz"
+#    ./compiled/main
+#fi
+
+#generate grad.b from bvecs/bvals
+
+#load bvals/bvecs
+bvals=$(cat $BVALS)
+bvecs_x=$(cat $BVECS | head -1)
+bvecs_y=$(cat $BVECS | head -2 | tail -1)
+bvecs_z=$(cat $BVECS | tail -1)
+
+#convert strings to array of numbers
+bvecs_x=($bvecs_x)
+bvecs_y=($bvecs_y)
+bvecs_z=($bvecs_z)
+
+#output grad.b
+i=0
+true > grad.b
+for bval in $bvals; do
+    echo ${bvecs_x[$i]} ${bvecs_y[$i]} ${bvecs_z[$i]} $bval >> grad.b
+    i=$((i+1))
+done
 
 if [ ! -f convertmif.success ]; then
     echo "converting various nii.gz to mif"
