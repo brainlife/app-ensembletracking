@@ -24,6 +24,5 @@ fi
 
 if [ ! -f track.tck ]; then
     echo "running ensembetracking"
-    #time singularity exec -e docker://brainlife/mrtrix_on_mcr:1.0 ./ensembletracking.sh
     time singularity exec -e docker://brainlife/mrtrix:0.2.12 ./ensembletracking.sh
 fi
