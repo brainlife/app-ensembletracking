@@ -7,7 +7,7 @@ set -e
 set -x
 cat config.json
 
-export PATH=$PATH:/usr/lib/mrtrix/bin
+#export PATH=$PATH:/usr/lib/mrtrix/bin
 
 DOPROB=`jq -r '.do_probabilistic' config.json`
 DOSTREAM=`jq -r '.do_deterministic' config.json`
@@ -264,23 +264,24 @@ if [ $DOPROB == "true" ]; then
                 mv tmp.tck $out
             fi
 
-            out=${prefix}_lm.tck
-            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
-                echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
-                timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
-                    -seed lh_motor_seed.mif \
-                    -mask tm.mif \
-                    -grad grad.b \
-                    -curvature $i_curv \
-                    -number $NUMMTFIBERS \
-                    -maxnum $MAXNUMMTFIBERS \
-                    -step $STEPSIZE \
-                    -minlength $MINLENGTH \
-                    -length $MAXLENGTH \
-                    -include lh_motor.mif \
-                    -include br_stem.mif
-                mv tmp.tck $out
-            fi
+            #this times out too often
+            #out=${prefix}_lm.tck
+            #if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
+            #    echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
+            #    timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
+            #        -seed lh_motor_seed.mif \
+            #        -mask tm.mif \
+            #        -grad grad.b \
+            #        -curvature $i_curv \
+            #        -number $NUMMTFIBERS \
+            #        -maxnum $MAXNUMMTFIBERS \
+            #        -step $STEPSIZE \
+            #        -minlength $MINLENGTH \
+            #        -length $MAXLENGTH \
+            #        -include lh_motor.mif \
+            #        -include br_stem.mif
+            #    mv tmp.tck $out
+            #fi
 
             out=${prefix}_rm.tck
             if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
