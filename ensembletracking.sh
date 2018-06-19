@@ -451,11 +451,11 @@ echo "Ensemble tractography generated $COUNT of a requested $TOTAL"
 ## adding product.json /w streamline count
 echo "{\"count\": $COUNT}" > product.json
 
-if [ $COUNT -ne $TOTAL ]; then
-    echo "Incorrect count. Tractography failed."
-    rm track.tck
-    exit 1
-fi
+#if [ $COUNT -ne $TOTAL ]; then
+#    echo "Incorrect count. Tractography failed."
+#    rm track.tck
+#    exit 1
+#fi
 
 # reduce storage load
 rm csd*.tck
