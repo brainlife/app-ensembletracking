@@ -452,9 +452,10 @@ echo "{\"count\": $COUNT}" > product.json
 # reduce storage load
 rm csd*.tck
 rm *tensor.tck
+rm *.mif
 
 #remove all .nii.gz except wm_full (as mask.nii.gz)
-cp wm_full.nii.gz wm_full.nii.gz.backup
-rm *.nii.gz
-cp wm_full.nii.gz.backup mask.nii.gz
+#cp wm_full.nii.gz wm_full.nii.gz.backup
+#rm *.nii.gz
+#cp wm_full.nii.gz.backup mask.nii.gz
 
