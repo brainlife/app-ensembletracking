@@ -6,9 +6,16 @@ set -e
 echo "Creating labeled freesurfer volumes..."
 
 fsurfer=`jq -r '.freesurfer' config.json`
-dtiinit=`jq -r '.dtiinit' config.json`
 
-export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+#works on either .dtiinit or .dwi
+dwi=`jq -r '.dwi' config.json`
+if [ $dwi != "null" ]; then
+    export input_nii_gz=$dwi
+fi
+dtiinit=`jq -r '.dtiinit' config.json`
+if [ $dtiinit != "null" ]; then
+    export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+fi
 
 ##SUBJECTS_DIR=$fsurfer
 source $FREESURFER_HOME/SetUpFreeSurfer.sh

@@ -30,17 +30,24 @@ MAXNUMORFIBERS=$(($NUMORFIBERS*250000))
 MAXNUMMTFIBERS=$(($NUMMTFIBERS*250000))
 MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 
-#pull dtiinit aligned dwi paths
+dwi=`jq -r '.dwi' config.json`
+if [ $dwi != "null" ]; then
+    export input_nii_gz=$dwi
+    export BVECS=`jq -r '.bvecs' config.json`
+    export BVALS=`jq -r '.bvals' config.json`
+fi
 dtiinit=`jq -r '.dtiinit' config.json`
-export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-export BVECS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-export BVALS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+if [ $dtiinit != "null" ]; then
+    export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+    export BVECS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
+    export BVALS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+fi
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     echo "max_lmax is empty... determining which lmax to use from .bvals"
-    MAXLMAX=`./calculatelmax.py`
+    MAXLMAX=`./calculatelmax.py $BVALS`
     echo "Using MAXLMAX: $MAXLMAX"
 fi
 
