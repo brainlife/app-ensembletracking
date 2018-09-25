@@ -77,35 +77,15 @@ bl dataset download 5a065cc75ab38300be518f51 && mv 5a065cc75ab38300be518f51 inpu
 
 ## Output
 
-All output files will be generated under the current working directory (pwd). The main output of this App is a file called `output.mat`. This file contains following object.
-
 ```
-fe = 
-
-    name: 'temp'
-    type: 'faseval'
-    life: [1x1 struct]
-      fg: [1x1 struct]
-     roi: [1x1 struct]
-    path: [1x1 struct]
-     rep: []
+track.tck
 ```
-
-`output_fg.pdb` contains all fasicles with >0 weights withtin fg object (fibers)
-
-#### Product.json
-
-The secondary output of this app is `product.json`. This file allows web interfaces, DB and API calls on the results of the processing. 
 
 ### Dependencies
 
 This App only requires [singularity](https://www.sylabs.io/singularity/) to run. If you don't have singularity, you will need to install following dependencies.  
 
-  - Matlab: https://www.mathworks.com/products/matlab.html
-  - jsonlab: https://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab-a-toolbox-to-encode-decode-json-files
-  - VISTASOFT: https://github.com/vistalab/vistasoft/
-  - ENCODE: https://github.com/brain-life/encode
-  - MBA: https://github.com/francopestilli/mba
-
-
+  - Freesurfer 6
+  - FSL 5.0.9
+  - Mrtrix 0.2.12
 
