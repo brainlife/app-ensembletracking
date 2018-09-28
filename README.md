@@ -12,7 +12,7 @@ This App combines multiple tractography methods by implementing Ensemble Tractog
 - Soichi Hayashi (hayashis@iu.edu)
 - Brent McPherson (bcmcpher@iu.edu)
 
-### Project directors
+### Project director
 - Franco Pestilli (franpest@indiana.edu)
 
 ### Funding 
