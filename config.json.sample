@@ -1,0 +1,20 @@
+{
+    "dtiinit-dis": "/N/u/hayashis/Karst/testdata/108323/dtiinit/.",
+    "dwi": "/N/u/hayashis/Karst/testdata/108323/dwi/dwi.nii.gz",
+    "bvecs": "/N/u/hayashis/Karst/testdata/108323/dwi/dwi.bvecs",
+    "bvals": "/N/u/hayashis/Karst/testdata/108323/dwi/dwi.bvals",
+    "freesurfer": "/N/u/hayashis/Karst/testdata/108323/freesurfer/output",
+    "stepsize": 0.2,
+    "minlength": 10,
+    "maxlength": 200,
+    "num_or_fibers": 0,
+    "num_mt_fibers": 0,
+    "num_vz_fibers": 0,
+    "detr_curvs": "0.25 0.5 1 2 4",
+    "prob_curvs": "0.25 0.5 1 2 4",
+    "num_cc_fibers": 2500,
+    "num_fibers": 12500,
+    "do_tensor": true,
+    "do_probabilistic": true,
+    "do_deterministic": true
+}

@@ -7,10 +7,13 @@ set -e
 set -x
 cat config.json
 
+<<<<<<< HEAD
 rm -f tmp.tck
 
 #export PATH=$PATH:/usr/lib/mrtrix/bin
 
+=======
+>>>>>>> 71041ef1ad9e414b08f0834ed291c3b1e999f762
 DOPROB=`jq -r '.do_probabilistic' config.json`
 DOSTREAM=`jq -r '.do_deterministic' config.json`
 DOTENSOR=`jq -r '.do_tensor' config.json`
@@ -34,22 +37,26 @@ MAXNUMORFIBERS=$(($NUMORFIBERS*250000))
 MAXNUMMTFIBERS=$(($NUMMTFIBERS*250000))
 MAXNUMVZFIBERS=$(($NUMVZFIBERS*250000))
 
-#pull dtiinit aligned dwi paths
+dwi=`jq -r '.dwi' config.json`
+if [ $dwi != "null" ]; then
+    export input_nii_gz=$dwi
+    export BVECS=`jq -r '.bvecs' config.json`
+    export BVALS=`jq -r '.bvals' config.json`
+fi
 dtiinit=`jq -r '.dtiinit' config.json`
-export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
-export BVECS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
-export BVALS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+if [ $dtiinit != "null" ]; then
+    export input_nii_gz=$dtiinit/`jq -r '.files.alignedDwRaw' $dtiinit/dt6.json`
+    export BVECS=$dtiinit/`jq -r '.files.alignedDwBvecs' $dtiinit/dt6.json`
+    export BVALS=$dtiinit/`jq -r '.files.alignedDwBvals' $dtiinit/dt6.json`
+fi
 
 #if max_lmax is empty, auto calculate
 MAXLMAX=`jq -r '.max_lmax' config.json`
 if [[ $MAXLMAX == "null" || -z $MAXLMAX ]]; then
     echo "max_lmax is empty... determining which lmax to use from .bvals"
-    MAXLMAX=`./calculatelmax.py`
+    MAXLMAX=`./calculatelmax.py $BVALS`
     echo "Using MAXLMAX: $MAXLMAX"
 fi
-
-#echo "Using NUMFIBERS per each track: $NUMFIBERS"
-#echo "Using MAXNUMBERFIBERSATTEMPTED: $MAXNUMFIBERSATTEMPTED"
 
 ###################################################################################################
 #
@@ -82,11 +89,6 @@ echo "Expecting $TOTAL streamlines in final ensemble."
 #
 #
 ###################################################################################################
-
-#if [ ! -f grad.b ]; then
-#    echo "creating grad.b & wm.nii.gz"
-#    ./compiled/main
-#fi
 
 #generate grad.b from bvecs/bvals
 
@@ -267,43 +269,43 @@ if [ $DOPROB == "true" ]; then
                 mv tmp.tck $out
             fi
 
-            #this times out too often
-            #out=${prefix}_lm.tck
-            #if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
-            #    echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
-            #    timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
-            #        -seed lh_motor_seed.mif \
-            #        -mask tm.mif \
-            #        -grad grad.b \
-            #        -curvature $i_curv \
-            #        -number $NUMMTFIBERS \
-            #        -maxnum $MAXNUMMTFIBERS \
-            #        -step $STEPSIZE \
-            #        -minlength $MINLENGTH \
-            #        -length $MAXLENGTH \
-            #        -include lh_motor.mif \
-            #        -include br_stem.mif
-            #    mv tmp.tck $out
-            #fi
+            #TODO this times out too often (NUMMTFIBERS now default to 0)
+            out=${prefix}_lm.tck
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
+                echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
+                timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
+                    -seed lh_motor_seed.mif \
+                    -mask tm.mif \
+                    -grad grad.b \
+                    -curvature $i_curv \
+                    -number $NUMMTFIBERS \
+                    -maxnum $MAXNUMMTFIBERS \
+                    -step $STEPSIZE \
+                    -minlength $MINLENGTH \
+                    -length $MAXLENGTH \
+                    -include lh_motor.mif \
+                    -include br_stem.mif
+                mv tmp.tck $out
+            fi
 
-            #this times out too often
-            #out=${prefix}_rm.tck
-            #if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
-            #    echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
-            #    timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
-            #        -seed rh_motor_seed.mif \
-            #        -mask tm.mif \
-            #        -grad grad.b \
-            #        -curvature $i_curv \
-            #        -number $NUMMTFIBERS \
-            #        -maxnum $MAXNUMMTFIBERS \
-            #        -step $STEPSIZE \
-            #        -minlength $MINLENGTH \
-            #        -length $MAXLENGTH \
-            #        -include rh_motor.mif \
-            #        -include br_stem.mif
-            #    mv tmp.tck $out
-            #fi
+            #TODO this times out too often (NUMMTFIBERS now default to 0)
+            out=${prefix}_rm.tck
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
+                echo "streamtrack SD_PROB $out - number:$NUMMTFIBERS"
+                timeout 3600 time streamtrack -quiet SD_PROB lmax${i_lmax}.mif tmp.tck \
+                    -seed rh_motor_seed.mif \
+                    -mask tm.mif \
+                    -grad grad.b \
+                    -curvature $i_curv \
+                    -number $NUMMTFIBERS \
+                    -maxnum $MAXNUMMTFIBERS \
+                    -step $STEPSIZE \
+                    -minlength $MINLENGTH \
+                    -length $MAXLENGTH \
+                    -include rh_motor.mif \
+                    -include br_stem.mif
+                mv tmp.tck $out
+            fi
 
             out=${prefix}_vz.tck
             if [ ! -f $out ] && [ $NUMVZFIBERS -gt 0 ] ; then
@@ -368,43 +370,43 @@ if [ $DOSTREAM == "true" ] ; then
                 mv tmp.tck $out
             fi
 
-            #this times out too often
-            #out=${prefix}_lm.tck
-            #if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
-            #    echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
-            #    timeout 3600 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif tmp.tck \
-            #        -seed lh_motor_seed.mif \
-            #        -mask tm.mif \
-            #        -grad grad.b \
-            #        -curvature $i_curv \
-            #        -number $NUMMTFIBERS \
-            #        -maxnum $MAXNUMMTFIBERS \
-            #        -step $STEPSIZE \
-            #        -minlength $MINLENGTH \
-            #        -length $MAXLENGTH \
-            #        -include lh_motor.mif \
-            #        -include br_stem.mif
-            #    mv tmp.tck $out
-            #fi
+            #TODO this times out too often (NUMMTFIBERS now default to 0)
+            out=${prefix}_lm.tck
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
+                echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
+                timeout 3600 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif tmp.tck \
+                    -seed lh_motor_seed.mif \
+                    -mask tm.mif \
+                    -grad grad.b \
+                    -curvature $i_curv \
+                    -number $NUMMTFIBERS \
+                    -maxnum $MAXNUMMTFIBERS \
+                    -step $STEPSIZE \
+                    -minlength $MINLENGTH \
+                    -length $MAXLENGTH \
+                    -include lh_motor.mif \
+                    -include br_stem.mif
+                mv tmp.tck $out
+            fi
 
-            #this times out too often
-            #out=${prefix}_rm.tck
-            #if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
-            #    echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
-            #    timeout 3600 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif tmp.tck \
-            #        -seed rh_motor_seed.mif \
-            #        -mask tm.mif \
-            #        -grad grad.b \
-            #        -curvature $i_curv \
-            #        -number $NUMMTFIBERS \
-            #        -maxnum $MAXNUMMTFIBERS \
-            #        -step $STEPSIZE \
-            #        -minlength $MINLENGTH \
-            #        -length $MAXLENGTH \
-            #        -include rh_motor.mif \
-            #        -include br_stem.mif
-            #    mv tmp.tck $out
-            #fi
+            #TODO this times out too often (NUMMTFIBERS now default to 0)
+            out=${prefix}_rm.tck
+            if [ ! -f $out ] && [ $NUMMTFIBERS -gt 0 ]; then
+                echo "streamtrack SD_STREAM $out - number:$NUMMTFIBERS"
+                timeout 3600 time streamtrack -quiet SD_STREAM lmax${i_lmax}.mif tmp.tck \
+                    -seed rh_motor_seed.mif \
+                    -mask tm.mif \
+                    -grad grad.b \
+                    -curvature $i_curv \
+                    -number $NUMMTFIBERS \
+                    -maxnum $MAXNUMMTFIBERS \
+                    -step $STEPSIZE \
+                    -minlength $MINLENGTH \
+                    -length $MAXLENGTH \
+                    -include rh_motor.mif \
+                    -include br_stem.mif
+                mv tmp.tck $out
+            fi
 
             out=${prefix}_vz.tck
             if [ ! -f $out ] && [ $NUMVZFIBERS -gt 0 ]; then
@@ -465,5 +467,10 @@ echo "{\"count\": $COUNT}" > product.json
 # reduce storage load
 rm csd*.tck
 rm *tensor.tck
-rm *.nii.gz
+rm *.mif
+
+#remove all .nii.gz except wm_full (as mask.nii.gz)
+#cp wm_full.nii.gz wm_full.nii.gz.backup
+#rm *.nii.gz
+#cp wm_full.nii.gz.backup mask.nii.gz
 
