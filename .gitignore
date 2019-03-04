@@ -7,3 +7,4 @@ config.json.copy
 products.json
 dwi*
 *~
+testdata

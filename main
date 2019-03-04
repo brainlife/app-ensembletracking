@@ -6,7 +6,6 @@
 #make the script to fail if any of the commands ran fails.
 set -e
 
-[ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
 
 #validate some input parameters
 if [ $(jq -r '.num_or_fibers' config.json) -gt 25 ]; then
@@ -16,7 +15,10 @@ fi
 
 if [ ! -f convertfiles.success ]; then
     echo "converting aparc+aseg.mgz"
-    time singularity exec --writable -e docker://brainlife/freesurfer:6.0.0 bash -c "echo $FREESURFER_LICENSE > /usr/local/freesurfer/license.txt && ./convertfiles.sh"
+    [ -z "$FREESURFER_LICENSE" ] && echo "Please set FREESURFER_LICENSE in .bashrc" && exit 1;
+    echo $FREESURFER_LICENSE > license.txt
+    #export SINGULARITYENV_FS_LICENSE=`pwd`/license.txt
+    time singularity exec -e -B `pwd`/license.txt:/usr/local/freesurfer/license.txt docker://brainlife/freesurfer:6.0.0 ./convertfiles.sh
 fi
 
 if [ ! -f wmmask.success ]; then
