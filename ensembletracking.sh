@@ -7,6 +7,8 @@ set -e
 set -x
 cat config.json
 
+rm -f tmp.tck
+
 #export PATH=$PATH:/usr/lib/mrtrix/bin
 
 DOPROB=`jq -r '.do_probabilistic' config.json`
@@ -89,10 +91,11 @@ echo "Expecting $TOTAL streamlines in final ensemble."
 #generate grad.b from bvecs/bvals
 
 #load bvals/bvecs
-bvals=$(cat $BVALS)
-bvecs_x=$(cat $BVECS | head -1)
-bvecs_y=$(cat $BVECS | head -2 | tail -1)
-bvecs_z=$(cat $BVECS | tail -1)
+bvals=$(cat $BVALS | tr , ' ')
+bvecs=$(cat $BVECS | tr , ' ')
+bvecs_x=$(echo $bvecs | head -1)
+bvecs_y=$(echo $bvecs | head -2 | tail -1)
+bvecs_z=$(echo $bvecs | tail -1)
 
 #convert strings to array of numbers
 bvecs_x=($bvecs_x)
