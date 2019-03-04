@@ -7,13 +7,8 @@ set -e
 set -x
 cat config.json
 
-<<<<<<< HEAD
 rm -f tmp.tck
 
-#export PATH=$PATH:/usr/lib/mrtrix/bin
-
-=======
->>>>>>> 71041ef1ad9e414b08f0834ed291c3b1e999f762
 DOPROB=`jq -r '.do_probabilistic' config.json`
 DOSTREAM=`jq -r '.do_deterministic' config.json`
 DOTENSOR=`jq -r '.do_tensor' config.json`
