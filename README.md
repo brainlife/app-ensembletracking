@@ -3,7 +3,18 @@
 
 # app-ensembletracking
 
-This App combines multiple tractography methods by implementing Ensemble Tractography. It creates a large set of candidate streamlines using an ensemble of algorithms and parameter values. 
+This App uses MRtrix 0.2.12 to do ensemble tracking using tensor and constrained spherical deconvolution (csd) algorithms. 
+It generates a large set of candidate streamlines using a tensor-based deterministic model, csd-based deterministic model, and csd-based probabilistic model. 
+The csd-based models can be computed at lmax values of 2, 4, 6, 8, 10, and 12. 
+All candidate streamlines are combined into a single track.mat file. 
+If you know the max lmax value for your data input the value for max_lmax, otherwise leave it blank and it will be calculated for you. 
+If you wish to use just deterministic tracking (MRtrix streamtrack parameter SD_STREAM) check do_deterministic. 
+If you wish to use just probabilistic tracking (MRtrix streamtrack parameter SD_PROB) check do_probabilistic.
+If you wish to use the tensor tracking (MRtrix streamtrack parameter DT_STREAM) check do_tensor. 
+By default it will use all three tracking methods. 
+
+For more information about Ensemble Tractography see Takemura, H., Caiafa, C. F., Wandell, B. A., & Pestilli, F. (2016). 
+Ensemble tractography. PLoS computational biology, 12(2), e1004692.
 
 ![img](ensemble.png)
 
