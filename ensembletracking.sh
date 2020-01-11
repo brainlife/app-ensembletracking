@@ -144,19 +144,19 @@ fi
 
 if [ ! -f dt.mif ] && [ $DOTENSOR == "true" ]; then
     echo "fit tensor model (takes about 16 minutes)"
-    time dwi2tensor -quiet dwi.mif -grad grad.b dt.mif 
+    time dwi2tensor dwi.mif -grad grad.b dt.mif 
 fi
 
 if [ ! -f response.txt ]; then
     echo "creating response.txt"
-    time estimate_response -quiet dwi.mif cc.mif -grad grad.b response.txt
+    time estimate_response dwi.mif cc.mif -grad grad.b response.txt
 fi
 
 for (( i_lmax=2; i_lmax<=$MAXLMAX; i_lmax+=2 )); do
     lmaxout=lmax${i_lmax}.mif
     if [ ! -f $lmaxout ]; then
         echo "csdeconv $lmaxout"
-        time csdeconv -quiet dwi.mif -grad grad.b response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
+        time csdeconv dwi.mif -grad grad.b response.txt -lmax $i_lmax -mask brainmask.mif $lmaxout
     fi
 done 
 
