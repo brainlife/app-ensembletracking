@@ -87,9 +87,9 @@ echo "Expecting $TOTAL streamlines in final ensemble."
 
 #generate grad.b from bvecs/bvals
 bvals=$(cat $BVALS | tr , ' ')
-bvecs_x=$(cat $bvecs | tr , ' ' | head -1)
-bvecs_y=$(cat $bvecs | tr , ' ' | head -2 | tail -1)
-bvecs_z=$(cat $bvecs | tr , ' ' | tail -1)
+bvecs_x=$(cat $BVECS | tr , ' ' | head -1)
+bvecs_y=$(cat $BVECS | tr , ' ' | head -2 | tail -1)
+bvecs_z=$(cat $BVECS | tr , ' ' | tail -1)
 
 #convert strings to array of numbers
 bvecs_x=($bvecs_x)
