@@ -14,7 +14,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-lightgrey.svg" alt="MIT license"></a>
 </p>
 
-## 🧠 At a glance
+## At a glance
 
 <!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
 
@@ -24,21 +24,21 @@ Implements Ensemble Tractography (Takemura et al. 2016): fits CSD at every even 
 
 | | |
 |---|---|
-| 📥 **Inputs** | `neuro/dwi` · `neuro/freesurfer` |
-| 📤 **Outputs** | `neuro/track/tck` · `neuro/mask` |
-| 🐳 **Container** | `brainlife/freesurfer:6.0.0` |
-| ⚙️ **Resources** | 8 CPUs · 15 GB memory · 15 h walltime |
-| 🔑 **Requires** | `FREESURFER_LICENSE` |
-| 🔗 **Run it** | [doi.org/10.25663/bl.app.103](https://doi.org/10.25663/bl.app.103) |
+| **Inputs** | `neuro/dwi` · `neuro/freesurfer` |
+| **Outputs** | `neuro/track/tck` · `neuro/mask` |
+| **Container** | `brainlife/freesurfer:6.0.0` |
+| **Resources** | 8 CPUs · 15 GB memory · 15 h walltime |
+| **Requires** | `FREESURFER_LICENSE` |
+| **Run it** | [doi.org/10.25663/bl.app.103](https://doi.org/10.25663/bl.app.103) |
 
-#### 📥 Inputs
+#### Inputs
 
 | Input | Datatype | Required | Description |
 |---|---|---|---|
 | `dwi` | `neuro/dwi` | yes | Diffusion-weighted image with bvals and bvecs. |
 | `freesurfer` | `neuro/freesurfer` | yes | FreeSurfer recon-all output of the same subject, used to build white-matter, corpus callosum and other seed/ROI masks. |
 
-#### 📤 Outputs
+#### Outputs
 
 | Output | Datatype | Description |
 |---|---|---|
@@ -46,7 +46,7 @@ Implements Ensemble Tractography (Takemura et al. 2016): fits CSD at every even 
 | `mask_dwi` | `neuro/mask` | (despite the odd output directory name "mask_dwi") A brain mask created from freesurfer aparc+aseg converted to .nii.gz using input t1 as output template volume (--temp). It uses all white matter segments (--match 2 41 16 17 28 60 51 53 12 52 13 18 54 50 11 251 252 253 254 255 10 49 46 7) see FreeSurferColorLUT |
 
 <details>
-<summary><b>⚙️ Parameters</b> (14)</summary>
+<summary><b>Parameters</b> (14)</summary>
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
@@ -69,7 +69,7 @@ Implements Ensemble Tractography (Takemura et al. 2016): fits CSD at every even 
 
 <!-- brainlife-app:end -->
 
-## 🏷️ Versions on brainlife.io
+## Versions on brainlife.io
 
 Each version is a separate App on brainlife.io, built from a branch of this repository.
 
@@ -79,9 +79,9 @@ Each version is a separate App on brainlife.io, built from a branch of this repo
 | Ensemble Tracking with dtiInit | `neuro/dtiinit` | [`1.5`](https://github.com/brainlife/app-ensembletracking/tree/1.5) | [doi:10.25663/bl.app.33](https://doi.org/10.25663/bl.app.33) | available |
 | old ensemble tracking | `neuro/dtiinit` | [`singularity`](https://github.com/brainlife/app-ensembletracking/tree/singularity) | [doi:10.25663/brainlife.app.149](https://doi.org/10.25663/brainlife.app.149) | deprecated |
 
-## 🚀 Running the App
+## Running the App
 
-### ☁️ On brainlife.io
+### On brainlife.io
 
 Open the App at [doi.org/10.25663/bl.app.103](https://doi.org/10.25663/bl.app.103) (or [doi.org/10.25663/bl.app.33](https://doi.org/10.25663/bl.app.33) for a dtiInit input), choose the diffusion data and a FreeSurfer output of the same subject, set the options and press **Execute**. The result is a `neuro/track/tck` tractogram tagged `ensemble`, plus a white-matter `neuro/mask`, archived to your project. Use it to produce a rich candidate tractogram, for example for LiFE or COMMIT filtering.
 
@@ -93,7 +93,7 @@ The App implements Ensemble Tractography (Takemura et al. 2016) with MRtrix 0.2.
 
 By default all three are used. All candidate streamlines are concatenated into a single `track.tck`. `num_fibers` (default 12500) is the number of streamlines per individual run and `num_cc_fibers` (default 2500) the number seeded in the corpus callosum; `num_or_fibers` and `num_vz_fibers` add optic radiation and visual-associative tracts (probabilistic tracking only).
 
-### 💻 Locally
+### Locally
 
 You need [Singularity/Apptainer](https://apptainer.org/), [`jq`](https://jqlang.github.io/jq/) and a [FreeSurfer license](https://surfer.nmr.mgh.harvard.edu/registration.html). FreeSurfer 6.0.0, FSL 5.0.9 and MRtrix 0.2.12 run inside containers.
 
@@ -129,7 +129,7 @@ You need [Singularity/Apptainer](https://apptainer.org/), [`jq`](https://jqlang.
    ./main
    ```
 
-### 🧪 Sample data
+### Sample data
 
 Download a sample DWI and FreeSurfer output from brainlife.io with the [brainlife CLI](https://github.com/brainlife/cli):
 
@@ -141,7 +141,7 @@ bl dataset download 5a050a00eec2b300611abff3 && mv 5a050a00eec2b300611abff3 inpu
 bl dataset download 5a065cc75ab38300be518f51 && mv 5a065cc75ab38300be518f51 input/freesurfer
 ```
 
-## 📦 Outputs
+## Outputs
 
 ```text
 track.tck         ensemble tractogram concatenating all algorithm, lmax and curvature runs
@@ -150,13 +150,13 @@ product.json      streamline count, shown on brainlife.io
 *.nii.gz          brain, white-matter and seed masks built from FreeSurfer aparc+aseg (the white-matter mask is the neuro/mask output)
 ```
 
-## 🩺 Troubleshooting
+## Troubleshooting
 
 - **`num_or_fibers should be less than 25`**: `num_or_fibers` above 25 makes the App exit; lower it.
 - **`Please set FREESURFER_LICENSE in .bashrc`**: export the contents of your FreeSurfer `license.txt` as `FREESURFER_LICENSE` before running `./main`.
 - **`num_mt_fibers`**: cortico-spinal tract tracking is temporarily disabled because it can get stuck; leave it at 0.
 
-## 📚 Citing
+## Citing
 
 > [!TIP]
 > If you use this App in your work, please cite the App, the software it builds on and brainlife.io (below). GitHub's **Cite this repository** button gives the App citation in APA and BibTeX.
@@ -169,7 +169,7 @@ product.json      streamline count, shown on brainlife.io
 - Hayashi S, Caron BA, Heinsfeld AS, et al. brainlife.io: a decentralized and open-source cloud platform to support neuroscience research. *Nature Methods* 21:809–813 (2024). [doi:10.1038/s41592-024-02237-2](https://doi.org/10.1038/s41592-024-02237-2)
 - Avesani P, McPherson B, Hayashi S, et al. The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. *Scientific Data* 6:69 (2019). [doi:10.1038/s41597-019-0073-y](https://doi.org/10.1038/s41597-019-0073-y)
 
-## 👥 Authors
+## Authors
 
 - Franco Pestilli (project director)
 - Lindsey Kitchell
@@ -178,7 +178,7 @@ product.json      streamline count, shown on brainlife.io
 
 **Contributors:** Brad Caron, Gabriele Amorosino
 
-## 💰 Funding
+## Funding
 
 [![Wellcome-226486/Z/22/Z](https://img.shields.io/badge/Wellcome-226486%2FZ%2F22%2FZ-purple.svg)](https://wellcome.org/)
 [![NIH-NINDS-U24NS140384](https://img.shields.io/badge/NIH_NINDS-U24NS140384-green.svg)](https://reporter.nih.gov/project-details/11261037)
@@ -197,6 +197,6 @@ product.json      streamline count, shown on brainlife.io
 
 <sub>brainlife.io is publicly funded, and acknowledging that support helps keep it running. This App was developed with support from Wellcome, the U.S. National Institutes of Health (including the BRAIN Initiative BRAIN CONNECTS program: The Axonal Projectome EXchange, U24NS140384, and the Center for Mesoscale Connectomics, UM1NS132207) and the U.S. National Science Foundation.</sub>
 
-## ⚖️ License
+## License
 
 [MIT](LICENSE). FreeSurfer, FSL and MRtrix are distributed under their own licenses.
