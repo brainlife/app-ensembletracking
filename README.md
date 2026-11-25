@@ -3,6 +3,48 @@
 
 # app-ensembletracking
 
+<!-- brainlife-app:begin (generated from the App manifest; edit the manifest, not this block) -->
+
+**Generates an ensemble whole-brain tractogram from DWI with MRtrix 0.2.12, combining tensor, CSD deterministic and CSD probabilistic tracking over several lmax and curvature values into one .tck.**
+
+Implements Ensemble Tractography (Takemura et al. 2016): fits CSD at every even lmax up to max_lmax, tracks with DT_STREAM, SD_STREAM and SD_PROB over the chosen curvature values from white-matter and corpus-callosum seeds (plus optional optic radiation and visual tracts), and concatenates all candidates into track.tck. Use it to produce a rich candidate tractogram, for example for LiFE or COMMIT filtering. Requires a FreeSurfer run of the same subject for the masks. num_or_fibers above 25 makes the App exit.
+
+Run it on brainlife.io: [https://doi.org/10.25663/bl.app.103](https://doi.org/10.25663/bl.app.103)
+
+| Input | Datatype | Required | Description |
+|---|---|---|---|
+| `dwi` | `neuro/dwi` | yes | Diffusion-weighted image with bvals and bvecs. |
+| `freesurfer` | `neuro/freesurfer` | yes | FreeSurfer recon-all output of the same subject, used to build white-matter, corpus callosum and other seed/ROI masks. |
+
+| Output | Datatype | Description |
+|---|---|---|
+| `output` | `neuro/track/tck` | Ensemble tractogram (track.tck) concatenating all algorithm, lmax and curvature runs. |
+| `mask_dwi` | `neuro/mask` | (despite the odd output directory name "mask_dwi") A brain mask created from freesurfer aparc+aseg converted to .nii.gz using input t1 as output template volume (--temp). It uses all white matter segments (--match 2 41 16 17 28 60 51 53 12 52 13 18 54 50 11 251 252 253 254 255 10 49 46 7) see FreeSurferColorLUT |
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `stepsize` | number | `0.2` | set the step size of the tracking |
+| `minlength` | number | `10` | set the minimum length of the streamlines generated |
+| `maxlength` | number | `200` | set the maximum length of the streamlines generated |
+| `num_or_fibers` | number | `0` | Number of streamlines to track the optic radiation (probabilistic tracking only) |
+| `num_mt_fibers` | number | `0` | (temporarily disabled as this tracking gets stuck) Number of streamlines to track the cortico-spinal tract |
+| `num_vz_fibers` | number | `0` | Number of streamlines to track the visual-associative tracts |
+| `detr_curvs` | string | `0.25 0.5 1 2 4` | Range of curvature parameters used for deterministic tracking |
+| `prob_curvs` | string | `0.25 0.5 1 2 4` | Range of curvature parameters used for probabilistic tracking |
+| `num_cc_fibers` | number | `2500` | Number of streamlines to track seeding the corpus callosum |
+| `num_fibers` | integer | `12500` | Total number of streamlines requested per individual streamline output file (.tck) |
+| `max_lmax` | integer |  | Maximum number of parameters for the constrained spherical deconvolution. Leave it empty to auto calculate from the number of available directions in bvecs/bvals. |
+| `do_tensor` | boolean | `true` | Include tensor-based deterministic tracking (DT_STREAM). |
+| `do_probabilistic` | boolean | `true` | Include CSD-based probabilistic tracking (SD_PROB) at each lmax and curvature. |
+| `do_deterministic` | boolean | `true` | Include CSD-based deterministic tracking (SD_STREAM) at each lmax and curvature. |
+
+Runtime: container `brainlife/freesurfer:6.0.0`; 8 CPUs; 15 GB memory; 15 h walltime; needs `FREESURFER_LICENSE`.
+
+Please cite:
+- Takemura H, Caiafa CF, Wandell BA, Pestilli F. Ensemble tractography. PLoS Comput Biol 12(2): e1004692 (2016). [doi:10.1371/journal.pcbi.1004692](https://doi.org/10.1371/journal.pcbi.1004692)
+
+<!-- brainlife-app:end -->
+
 This App uses MRtrix 0.2.12 to do ensemble tracking using tensor and constrained spherical deconvolution (csd) algorithms. It generates a large set of candidate streamlines using a tensor-based deterministic model, csd-based deterministic model, and csd-based probabilistic model. The csd-based models can be computed at lmax values of 2, 4, 6, 8, 10, and 12. All candidate streamlines are combined into a single track.mat file. 
 
 max lmax can be left blank and it will be calculated for you. 
